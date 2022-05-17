@@ -1,0 +1,140 @@
+TClass::Init:0: RuntimeWarning: no dictionary for class __pair_base<edm::Hash<1>,edm::ParameterSetBlob> is available
+Analysing through Run 2018
+Ultra Legacy Selected 
+-------------------------------------------------------------------
+Default root version :checking out gen branches! 
+-------------------------------------------------------------------
+input file is MC
+allinone
+collecting root files in testinputdata/MC/2018
+files to process
+['testinputdata/MC/2018/nanoTree_10.root']
+-------------------------------------------------------------------
+Total Number of Entries:
+48000
+-------------------------------------------------------------------
+select good electrons
+================================//=================================
+Line : 59 Function : selectElectrons
+================================//=================================
+================================//=================================
+Line : 754 Function : ElectronID
+================================//=================================
+ LOOSE Electron ID requested   == 2
+-------------------------------------------------------------------
+select good muons
+================================//=================================
+Line : 89 Function : selectMuons
+================================//=================================
+================================//=================================
+Line : 793 Function : MuonID
+================================//=================================
+ TIGHT Muon ID requested as == 4
+-------------------------------------------------------------------
+select good jets
+================================//=================================
+Line : 124 Function : selectJets
+================================//=================================
+================================//=================================
+Line : 838 Function : JetID
+================================//=================================
+ JET ID requested  == 6
+================================//=================================
+Line : 253 Function : setupAnalysis
+================================//=================================
+================================//=================================
+Line : 31 Function : defineCuts
+================================//=================================
+-------------------------------------------------------------------
+Usage of ranges:
+ - All entries: 48000
+-------------------------------------------------------------------
+================================//=================================
+Line : 664 Function : setHLT
+================================//=================================
+ HLT names =  HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5==1 || HLT_PFJet550==1 
+================================//=================================
+Line : 162 Function : defineMoreVars
+================================//=================================
+================================//=================================
+Line : 205 Function : bookHists
+================================//=================================
+setting up definitions, cuts, and histograms
+-------------------------------------------------------------------
+cut : 00 --writing branches
+-------------------------------------------------------------------
+run
+luminosityBlock
+event
+evWeight
+nElectron
+Electron_charge
+NgoodElectrons
+nMuon
+Muon_charge
+Muon_mass
+NgoodMuons
+nJet
+Jet_pt
+NgoodJets
+goodJets_pt
+-------------------------------------------------------------------
+Creating output root file :  
+analyzed/test_nano_v1_00.root 
+-------------------------------------------------------------------
+Writing histograms...   
+-------------------------------------------------------------------
+TH1.Print Name  = hNgoodElectrons_cut0, Entries= 4427, Total sum= 4427
+TH1.Print Name  = hNgoodElectrons_cut00, Entries= 4427, Total sum= 4427
+TH1.Print Name  = hNgoodElectrons_cut1, Entries= 11923, Total sum= 11923
+TH1.Print Name  = hNgoodElectrons_nocut, Entries= 48000, Total sum= 48000
+TH1.Print Name  = hNgoodMuons_cut0, Entries= 4427, Total sum= 4420
+TH1.Print Name  = hNgoodMuons_cut00, Entries= 4427, Total sum= 4420
+TH1.Print Name  = hNgoodMuons_cut1, Entries= 11923, Total sum= 11917
+TH1.Print Name  = hNgoodMuons_nocut, Entries= 48000, Total sum= 47987
+TH1.Print Name  = hgood_jet1pt_cut0, Entries= 4427, Total sum= 4420
+TH1.Print Name  = hgood_jet1pt_cut00, Entries= 4427, Total sum= 4420
+TH1.Print Name  = hnevents_cut0, Entries= 4427, Total sum= 4427
+TH1.Print Name  = hnevents_cut00, Entries= 4427, Total sum= 4427
+TH1.Print Name  = hnevents_cut1, Entries= 11923, Total sum= 11923
+TH1.Print Name  = hnevents_nocut, Entries= 48000, Total sum= 48000
+-------------------------------------------------------------------
+cut : 1 --writing branches
+-------------------------------------------------------------------
+run
+luminosityBlock
+event
+evWeight
+nElectron
+Electron_charge
+NgoodElectrons
+nMuon
+Muon_charge
+Muon_mass
+NgoodMuons
+nJet
+Jet_pt
+NgoodJets
+goodJets_pt
+-------------------------------------------------------------------
+Creating output root file :  
+analyzed/test_nano_v1_1.root 
+-------------------------------------------------------------------
+Writing histograms...   
+-------------------------------------------------------------------
+TH1.Print Name  = hNgoodElectrons_cut0, Entries= 4427, Total sum= 4427
+TH1.Print Name  = hNgoodElectrons_cut00, Entries= 4427, Total sum= 4427
+TH1.Print Name  = hNgoodElectrons_cut1, Entries= 11923, Total sum= 11923
+TH1.Print Name  = hNgoodElectrons_nocut, Entries= 48000, Total sum= 48000
+TH1.Print Name  = hNgoodMuons_cut0, Entries= 4427, Total sum= 4420
+TH1.Print Name  = hNgoodMuons_cut00, Entries= 4427, Total sum= 4420
+TH1.Print Name  = hNgoodMuons_cut1, Entries= 11923, Total sum= 11917
+TH1.Print Name  = hNgoodMuons_nocut, Entries= 48000, Total sum= 47987
+TH1.Print Name  = hgood_jet1pt_cut0, Entries= 4427, Total sum= 4420
+TH1.Print Name  = hgood_jet1pt_cut00, Entries= 4427, Total sum= 4420
+TH1.Print Name  = hnevents_cut0, Entries= 4427, Total sum= 4427
+TH1.Print Name  = hnevents_cut00, Entries= 4427, Total sum= 4427
+TH1.Print Name  = hnevents_cut1, Entries= 11923, Total sum= 11923
+TH1.Print Name  = hnevents_nocut, Entries= 48000, Total sum= 48000
+-------------------------------------------------------------------
+END...  :) 
