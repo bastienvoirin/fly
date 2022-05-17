@@ -65,10 +65,10 @@ CMSSW 12.3 has ROOT 6.22 but there are run time errors when using this. So you m
       > source /cvmfs/cms.cern.ch/slc7_amd64_gcc900/lcg/root/6.24.07-db9b7135424812ed5b8723a7a77f4016/bin/thisroot.(c)sh  
 
   * Clone with SSH :
-      > git clone ssh://git@gitlab.cern.ch:7999/fly/fly.git
+      > git clone git@github.com:cdozen/test_nanofly.git
 
   * Clone with HTTPS:
-      > git clone https://gitlab.cern.ch/fly/fly.git
+      > git clone https://github.com/cdozen/test_nanofly.git
   
 
 ## IV. Compiling
