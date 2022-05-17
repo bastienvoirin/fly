@@ -45,7 +45,7 @@ if __name__=='__main__':
     print("Inside process one file..!!")
 
     #aproc = ROOT.FourtopAnalyzer(t, outfile)
-    aproc = ROOT.BaseAnalyser(t, outfile)
+    aproc = ROOT.TopHiggsTrileptonAnalyser(t, outfile)
     aproc.setParams(config['year'], config['runtype'],config['datatype'])
 
     #aproc.setParams(config[year])

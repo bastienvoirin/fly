@@ -61,7 +61,8 @@ procflags = {
 # output directory wheere your output should go
 # dump of stderr/stdout to file
 nanoaod_inputdir_outputdir_pairs = [
-        ['testinputdata/MC/2018','analyzed/test_nano_v1.root', 'stderrout.out' ],
+        #['testinputdata/MC/2018','analyzed/test_nano_v1.root', 'stderrout.out' ],
         #['processed/2016','analyzed/t_test_nan0v1.root', 'stderrout.out' ],
+        ['rootfiles','analyzed/analyzed.root', 'stderrout.log' ],
 ]
 

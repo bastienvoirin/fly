@@ -8,7 +8,7 @@
 
 #pragma link C++ class std::vector<ROOT::Math::PtEtaPhiMVector>+;
 #pragma link C++ class NanoAODAnalyzerrdframe +;
-#pragma link C++ class BaseAnalyser +;
+#pragma link C++ class TopHiggsTrileptonAnalyser +;
 //#pragma link C++ class SkimEvents +;
 
 #endif /* LINKDEF_H_ */

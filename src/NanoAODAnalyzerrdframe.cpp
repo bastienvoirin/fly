@@ -358,7 +358,7 @@ void NanoAODAnalyzerrdframe::removeOverlaps()
 			return mindrlepton;
 		};
 	//cout << "overlap removal" << endl;
-	_rlm = _rlm.Define("mindrlepton", checkoverlap, {"jet4vecs","ele4vecs"});
+	//_rlm = _rlm.Define("mindrlepton", checkoverlap, {"jet4vecs","ele4vecs"});
 
 	//cout << "redefine cleaned jets" << endl;
 	_rlm = _rlm.Define("overlapcheck", "mindrlepton>0.4");

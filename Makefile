@@ -28,7 +28,7 @@ clean:
 	rm -f $(OBJS) $(TARGET) libnanoaodrdframe.so $(SRCDIR)/rootdict.C rootdict_rdict.pcm
 
 #$(SRCDIR)/rootdict.C: $(SRCDIR)/NanoAODAnalyzerrdframe.h $(SRCDIR)/SkimEvents.h $(SRCDIR)/Linkdef.h 
-$(SRCDIR)/rootdict.C: $(SRCDIR)/NanoAODAnalyzerrdframe.h $(SRCDIR)/BaseAnalyser.h $(SRCDIR)/Linkdef.h 
+$(SRCDIR)/rootdict.C: $(SRCDIR)/NanoAODAnalyzerrdframe.h $(SRCDIR)/TopHiggsTrileptonAnalyser.h $(SRCDIR)/Linkdef.h 
 	rm -f $@
 	rootcling -I$(CORRECTION_INCDIR) -I$(SRCDIR) $@ $^
 

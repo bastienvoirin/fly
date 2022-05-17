@@ -222,7 +222,8 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
     print("-------------------------------------------------------------------")
 
     #aproc = ROOT.FourtopAnalyzer(t, outputroot)
-    aproc = ROOT.BaseAnalyser(t, outputroot)
+    #aproc = ROOT.BaseAnalyser(t, outputroot)
+    aproc = ROOT.TopHiggsTrileptonAnalyser(t, outputroot)
     aproc.setParams(config['year'], config['runtype'],config['datatype']) 
     #
     #if your input root file already has good json, various corrections applied with
