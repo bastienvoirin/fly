@@ -260,6 +260,7 @@ void TopHiggsTrileptonAnalyser::selectMuons()
         return areFromW;
     };
 
+    /*
     _rlm = _rlm.Define("sel_muongenW", isMuonFromW, {"Selected_muon_pdgId",
                                                      "GenPart_pdgId",
                                                      "Selected_muon_genPartIdx",
@@ -291,6 +292,7 @@ void TopHiggsTrileptonAnalyser::selectMuons()
                                                          "MuonFromW_eta",
                                                          "MuonFromW_phi",
                                                          "MuonFromW_mass"});
+    */
 }
 
 /// @brief Select jets
@@ -444,6 +446,7 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
     addVartoStore("Vectorial_sum_two_muons_mass");
 
     // Reconstructed muons
+    /*
     addVartoStore("sel_muongenW");
     addVartoStore("MuonFromW_pt");
     addVartoStore("MuonFromW_eta");
@@ -467,8 +470,9 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
     addVartoStore("MuonFromW_pfRelIso04_all_divided_pt");
     addVartoStore("MuonFromW_genPartIdx");
     addVartoStore("MuonFromW_genPartFlav");
-    addVartoStore("MuonFromW_pdgId");   
+    addVartoStore("MuonFromW_pdgId");  
     addVartoStore("p4_MuonW");
+    */
 
     // Jets
     addVartoStore("Selected_jet_pt");
@@ -525,12 +529,14 @@ void TopHiggsTrileptonAnalyser::bookHists()
     //add1DHist({"pfRelIso04_all_Muons", "pfRelIso04_all isolation variable between the 2 muons", 50, 0.0, 10.0}, "Selected_muon_pfRelIso04_all", "one", "");
 
     // Reconstructed muons
+    /*
     add1DHist({"Number_MuonsFromW", "Number of reconstructed muons", 20, 0.0, 10.0}, "MuonFromW_number", "one", "0");
     add1DHist({"Pt_MuonsFromW", "Pt of reconstructed muons", 20, 0.0, 100.0}, "MuonFromW_pt", "one", "0");
     add1DHist({"Eta_MuonsFromW", "Eta of reconstructed muons", 100, -3.0, 3.0}, "MuonFromW_eta", "one", "0");
     add1DHist({"Charge_MuonsFromW","Charge of reconstructed muons", 50, -2.0, 2.0}, "MuonFromW_charge", "one", "0");
     add1DHist({"Deltaphi_MuonsFromW", "Delta phi between the 2 reconstructed muons", 30, 0.0, 4.0}, "MuonFromW_deltaphi", "one", "0");
     add1DHist({"DeltaR_MuonsFromW", "Delta R between the 2 reconstructed muons", 30, 0.0, 6.0}, "MuonFromW_deltaR", "one", "0");
+    */
 
     // Others
     //add1DHist({"St", "St", 50, 0.0, 1500.0}, "St", "one", "");

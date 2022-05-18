@@ -14,6 +14,11 @@ from termcolor import colored
 def gotoParentDir():
     chdir("..")
 
+# Run a given terminal command
+def run(cmd):
+    print(colored(cmd, "cyan"))
+    system(cmd)
+
 # Set current working directory to this script's directory
 def setWorkingDir():
     scriptPath = path.realpath(__file__)
@@ -23,16 +28,17 @@ def setWorkingDir():
 
 # Compile and run the analysis program
 def compileRun():
-    system("make -j24")
-    system("./submitanalysisjob.py jobconfiganalysis.py")
+    run("make -j24 > make.log 2>&1") # Redirect stdout & stderr to make.log
+    run("./submitanalysisjob.py jobconfiganalysis.py")
     return
 
-def fetch(directory, command):
+def fetch(directory, command="ls"):
     chdir(directory)
     filename = popen(command).read().strip()
     gotoParentDir()
     return filename
 
+# List files in a given directory in a condensed format
 def ls(directory):
     command = f"ls {directory}"
     util = lambda cmd: popen(cmd).read().strip().replace("\n", " ") or "-"
@@ -51,9 +57,10 @@ def swapDirectories(dir1, file1, dir2, file2):
     ls(dir2)
     return
 
+# Open a ROOT file
 def analyse(rootfilename):
     print(colored("Starting analysis", "green"))
-    system(f"root -l {rootfilename}")
+    run(f"root -l {rootfilename}")
     print(colored("Done", "green"))
     return
 
@@ -62,37 +69,38 @@ def analyse(rootfilename):
 if __name__ == "__main__":
     storage = "rootfilesstorage"
     usage = "rootfiles"
-    rootfilename = "analyzed/analyzed.root"
+    rootfilename = "analysed/analysed_#"
 
     for color in "blue", "cyan", "green", "grey", "magenta", "red", "white", "yellow":
         print(colored(color, color), end="")
     print()
 
-    #setWorkingDir()
-    #gotoParentDir() # Move up one directory (from /src/fly/src to /src/fly)
-
-    currFile = fetch(usage, "ls")
+    # Fetch the filename of the current data set
+    currFile = fetch(usage)
     print("Processing", colored(currFile, "yellow"))
-    system("cms_env")
-    system("cmsenv")
-    system("source /cvmfs/cms.cern.ch/slc7_amd64_gcc900/lcg/root/6.24.07-db9b7135424812ed5b8723a7a77f4016/bin/thisroot.sh")
-    system("make clean")
-    compileRun()
-    analyse(rootfilename)
 
-    """
+    # Prepare the compilation & analysis
+    run("source /cvmfs/cms.cern.ch/slc7_amd64_gcc900/lcg/root/6.24.07-db9b7135424812ed5b8723a7a77f4016/bin/thisroot.sh")
+    run("make clean")
+
+    compileRun()
+    currRootfilename = rootfilename.replace("#", currFile)
+    run(f"mv analysed/analysed.root {currRootfilename}")
+    analyse(currRootfilename)
+
     # Fetch the filename of the other data set
-    otherFile = fetch(storage, "ls -d TT2L2Nu*")
+    otherFile = fetch(storage)
 
     # Swap data sets
     swapDirectories(usage, currFile, storage, otherFile)
 
     print("Processing", colored(fetch(usage, "ls"), "yellow"))
     compileRun()
-    analyse(rootfilename)
+    otherRootfilename = rootfilename.replace("#", otherFile)
+    run(f"mv analysed/analysed.root {otherRootfilename}")
+    analyse(otherRootfilename)
 
     # TODO: joint analysis/comparison/stack plots
 
-    # Swap data sets a second time to restore original state
+    # Swap data sets a second time to restore the original state
     swapDirectories(usage, otherFile, storage, currFile)
-    """
