@@ -536,12 +536,12 @@ void TopHiggsTrileptonAnalyser::bookHists()
     add1DHist({"Sum_Pt_Two_Muons", "Pt of the sum of the two muons", 60, 0.0, 400.0}, "Selected_muon_sum_two_muons_pt", "one", "");
     add1DHist({"Eta_Muons", "Eta of muons", 100, -3.0, 3.0}, "Selected_muon_eta", "one", "");
     add1DHist({"Charge_Muons", "Charge of muons", 50, -2.0, 2.0}, "Selected_muon_charge", "one", "");
-    add1DHist({"Deltaphi01_Muons", "Delta phi between the 2 muons", 30, 0.0, 4.0}, "Selected_muon_deltaphi_01", "one", "");
-    add1DHist({"Deltaphi02_Muons", "Delta phi between the 2 muons", 30, 0.0, 4.0}, "Selected_muon_deltaphi_02", "one", "");
-    add1DHist({"Deltaphi12_Muons", "Delta phi between the 2 muons", 30, 0.0, 4.0}, "Selected_muon_deltaphi_12", "one", "");
-    add1DHist({"DeltaR01_Muons", "Delta R between the 2 muons", 30, 0.0, 6.0}, "Selected_muon_deltaR_01", "one", "");
-    add1DHist({"DeltaR02_Muons", "Delta R between the 2 muons", 30, 0.0, 6.0}, "Selected_muon_deltaR_02", "one", "");
-    add1DHist({"DeltaR12_Muons", "Delta R between the 2 muons", 30, 0.0, 6.0}, "Selected_muon_deltaR_12", "one", "");
+    add1DHist({"Deltaphi01_Muons", "Delta phi between leading muon & subleading muon", 30, 0.0, 4.0}, "Selected_muon_deltaphi_01", "one", "");
+    add1DHist({"Deltaphi02_Muons", "Delta phi between leading muon & subsubleading muon", 30, 0.0, 4.0}, "Selected_muon_deltaphi_02", "one", "");
+    add1DHist({"Deltaphi12_Muons", "Delta phi between subleading muon & subsubleading muon", 30, 0.0, 4.0}, "Selected_muon_deltaphi_12", "one", "");
+    add1DHist({"DeltaR01_Muons", "Delta R between leading muon & subleading muon", 30, 0.0, 6.0}, "Selected_muon_deltaR_01", "one", "");
+    add1DHist({"DeltaR02_Muons", "Delta R between leading muon & subsubleading muon", 30, 0.0, 6.0}, "Selected_muon_deltaR_02", "one", "");
+    add1DHist({"DeltaR12_Muons", "Delta R between subleading muon & subsubleading muon", 30, 0.0, 6.0}, "Selected_muon_deltaR_12", "one", "");
     //add1DHist({"Sum_Mass_Two_Muons", "Invariant mass of the two muons", 20, 0.0, 1.0}, "Vectorial_sum_two_muons_mass", "one", "");
     //add1DHist({"miniPFRelIso_all_Muons", "miniPFRel_all isolation variable between the 2 muons", 50, 0.0, 10.0}, "Selected_muon_miniPFRelIso_all", "one", "");
     //add1DHist({"miniPFRelIso_chg_Muons", "miniPFRel_chg isolation variable between the 2 muons", 50, 0.0, 10.0}, "Selected_muon_miniPFRelIso_chg", "one", "");
