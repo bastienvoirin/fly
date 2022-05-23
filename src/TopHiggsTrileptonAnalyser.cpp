@@ -83,6 +83,10 @@ void TopHiggsTrileptonAnalyser::defineCuts()
     // At least 1 b-tagged jet (t => W, b => lν, jet)
     addCuts("Selected_bjet_number >= 1", "00");
 
+    // Punzi-based cuts (May 20)
+    addCuts("Selected_muon_sum_all_muons_pt >= 130.0", "000");
+    addCuts("Selected_muon_deltaR_01 <= 4.0 && Selected_muon_deltaR_02 <= 4.0 && Selected_muon_deltaR_12 <= 4.0", "0000");
+
     //addCuts("Selected_muon_sum_two_muons_pt > 160", "00");
     //addCuts("Selected_muon_leading_pt > 80", "000");
     //addCuts("Selected_muon_subleading_pt > 40", "0000");
@@ -170,7 +174,7 @@ void TopHiggsTrileptonAnalyser::selectMuons()
     /// @param &pdgId            Selected_muon_pdgId
     ///                          Particle Data Group identification number of
     ///                          the (3?) selected muons
-    /// https://cms-nanoaod-integration.web.cern.ch/integration/master-106X/mc102X_doc.html#Muon
+    /// https://cms-nanoaod-integration.web.cern.ch/integration/master-106X/mc102X_doc.html#muon
     /// @param &genPartPdgId     GenPart_pdgId
     ///                          Particle Data Group identification number of
     ///                          the generator particles
@@ -528,20 +532,20 @@ void TopHiggsTrileptonAnalyser::bookHists()
     
     // Muons
     //add1DHist( {"hgoodelectron1_pt", "good electron1_pt", 18, -2.7, 2.7}, "good_electron1pt", "evWeight", "0");
-    add1DHist({"Number_Muons", "Number of muons", 20, 0.0, 10.0}, "Selected_muon_number", "one", "0");
-    add1DHist({"Pt_Muons", "Pt of muons", 40, 0.0, 200.0}, "Selected_muon_pt", "one", "");
-    add1DHist({"Leading_Pt_Muons", "Pt of the leading muon", 60, 0.0, 300.0}, "Selected_muon_leading_pt", "one", "");
-    add1DHist({"Subleading_Pt_Muons", "Pt of the subleading muon", 40, 0.0, 200.0}, "Selected_muon_subleading_pt", "one", "");
-    add1DHist({"Subsubleading_Pt_Muons", "Pt of the subsubleading muon", 40, 0.0, 200.0}, "Selected_muon_subsubleading_pt", "one", "");
-    add1DHist({"Sum_Pt_Two_Muons", "Pt of the sum of the two muons", 60, 0.0, 400.0}, "Selected_muon_sum_two_muons_pt", "one", "");
-    add1DHist({"Eta_Muons", "Eta of muons", 100, -3.0, 3.0}, "Selected_muon_eta", "one", "");
-    add1DHist({"Charge_Muons", "Charge of muons", 50, -2.0, 2.0}, "Selected_muon_charge", "one", "");
-    add1DHist({"Deltaphi01_Muons", "Delta phi between leading muon & subleading muon", 30, 0.0, 4.0}, "Selected_muon_deltaphi_01", "one", "");
-    add1DHist({"Deltaphi02_Muons", "Delta phi between leading muon & subsubleading muon", 30, 0.0, 4.0}, "Selected_muon_deltaphi_02", "one", "");
-    add1DHist({"Deltaphi12_Muons", "Delta phi between subleading muon & subsubleading muon", 30, 0.0, 4.0}, "Selected_muon_deltaphi_12", "one", "");
-    add1DHist({"DeltaR01_Muons", "Delta R between leading muon & subleading muon", 30, 0.0, 6.0}, "Selected_muon_deltaR_01", "one", "");
-    add1DHist({"DeltaR02_Muons", "Delta R between leading muon & subsubleading muon", 30, 0.0, 6.0}, "Selected_muon_deltaR_02", "one", "");
-    add1DHist({"DeltaR12_Muons", "Delta R between subleading muon & subsubleading muon", 30, 0.0, 6.0}, "Selected_muon_deltaR_12", "one", "");
+    add1DHist({"Number_Muons", "Number of muons;Number of muons;Events", 20, 0.0, 10.0}, "Selected_muon_number", "one", "0");
+    add1DHist({"Pt_Muons", "p_T of muons;p_T;Events", 40, 0.0, 200.0}, "Selected_muon_pt", "one", "");
+    add1DHist({"Leading_Pt_Muons", "p_T of muon 0;p_T of the leading muon;Events", 60, 0.0, 300.0}, "Selected_muon_leading_pt", "one", "");
+    add1DHist({"Subleading_Pt_Muons", "p_T of muon 1;p_T of the subleading muon;Events", 40, 0.0, 200.0}, "Selected_muon_subleading_pt", "one", "");
+    add1DHist({"Subsubleading_Pt_Muons", "p_T of muon 2;p_T of the subsubleading muon;Events", 40, 0.0, 200.0}, "Selected_muon_subsubleading_pt", "one", "");
+    add1DHist({"Sum_Pt_Three_Muons", "Total p_T of the 3 muons;Sum of the p_T of the three muons;Events", 60, 0.0, 400.0}, "Selected_muon_sum_all_muons_pt", "one", "");
+    add1DHist({"Eta_Muons", "Eta of muons;Eta;Events", 100, -3.0, 3.0}, "Selected_muon_eta", "one", "");
+    //add1DHist({"Charge_Muons", "Charge of muon", 50, -2.0, 2.0}, "Selected_muon_charge", "one", "");
+    //add1DHist({"Deltaphi01_Muons", "Delta#phi (leading muon, subleading muon)", 30, 0.0, 4.0}, "Selected_muon_deltaphi_01", "one", "");
+    //add1DHist({"Deltaphi02_Muons", "Delta#phi (leading muon, subsubleading muon)", 30, 0.0, 4.0}, "Selected_muon_deltaphi_02", "one", "");
+    //add1DHist({"Deltaphi12_Muons", "Delta#phi (subleading muon, subsubleading muon)", 30, 0.0, 4.0}, "Selected_muon_deltaphi_12", "one", "");
+    add1DHist({"DeltaR01_Muons", "DeltaR (muon 0, muon 1);DeltaR between leading and subleading muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_01", "one", "");
+    add1DHist({"DeltaR02_Muons", "DeltaR (muon 0, muon 2);DeltaR between leading and subsubleading muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_02", "one", "");
+    add1DHist({"DeltaR12_Muons", "DeltaR (muon 1, muon 2);DeltaR between subleading and subsubleading muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_12", "one", "");
     //add1DHist({"Sum_Mass_Two_Muons", "Invariant mass of the two muons", 20, 0.0, 1.0}, "Vectorial_sum_two_muons_mass", "one", "");
     //add1DHist({"miniPFRelIso_all_Muons", "miniPFRel_all isolation variable between the 2 muons", 50, 0.0, 10.0}, "Selected_muon_miniPFRelIso_all", "one", "");
     //add1DHist({"miniPFRelIso_chg_Muons", "miniPFRel_chg isolation variable between the 2 muons", 50, 0.0, 10.0}, "Selected_muon_miniPFRelIso_chg", "one", "");
