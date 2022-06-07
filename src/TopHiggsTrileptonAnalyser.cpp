@@ -50,7 +50,7 @@ enum PdgId {
 };
 
 TopHiggsTrileptonAnalyser::TopHiggsTrileptonAnalyser(TTree *t, std::string outfilename) 
-: NanoAODAnalyzerrdframe(t,outfilename)
+: NanoAODAnalyzerrdframe(t, outfilename)
 { // Initialise the HLT names in the analyser class
     HLT2018Names = {
         "HLT_PFHT380_SixJet32_DoubleBTagCSV_p075",
@@ -76,21 +76,52 @@ void TopHiggsTrileptonAnalyser::defineCuts()
          << "  All entries: " << *Nentry << endl;
     std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
 
+    // Preliminary cut: generator-level signal selection (3 muons from W bosons)
+    addCuts("Is_signal == 0 || (Is_signal == 1 && IsFromW.size() >= 3)", "0");
 
     // Basic cuts
     // 3-lepton final state (T' => t, H^0 => WW, Wb => (lν, lν), (lν, jet))
-    addCuts("Selected_muon_number == 3 && abs(Selected_muon_charge_sum) == 1", "0");
+    addCuts("Selected_muon_number == 3", "00");// && abs(Selected_muon_charge_sum) == 1", "0");
     // At least 1 b-tagged jet (t => W, b => lν, jet)
-    addCuts("Selected_bjet_number >= 1", "00");
+    //addCuts("Selected_bjet_number >= 1", "00");
 
     // Punzi-based cuts (May 20)
     addCuts("Selected_muon_sum_all_muons_pt >= 130.0", "000");
-    addCuts("Selected_muon_deltaR_01 <= 4.0 && Selected_muon_deltaR_02 <= 4.0 && Selected_muon_deltaR_12 <= 4.0", "0000");
+    addCuts("Selected_muon_deltaR_min_neutral <= 1.0", "0000");
 
     //addCuts("Selected_muon_sum_two_muons_pt > 160", "00");
     //addCuts("Selected_muon_leading_pt > 80", "000");
     //addCuts("Selected_muon_subleading_pt > 40", "0000");
     //addCuts("Selected_muon_deltaR > 1.8", "00000");
+}
+
+/// @brief
+/// @details
+void TopHiggsTrileptonAnalyser::selectSignal()
+{
+    _rlm = _rlm.Define("Is_signal", "1")
+               .Define("GenMuons","abs(GenPart_pdgId) == 13") // generator-level muons
+               .Define("MotherGenMuons","GenPart_genPartIdxMother[GenMuons]") // mother particles of generator-level muons
+               .Define("MotherPartPdgId", "ROOT::VecOps::Take(GenPart_pdgId, MotherGenMuons)") // PDG Id of the mother particles of generator-level muons
+               .Define("IsFromW","abs(MotherPartPdgId) == 24"); // is the generator-level muon from a W boson?
+               //.Define("motherPdgId", "GenPart_pdgId")
+                //.Define("pdgIdMother", "std::transform(GenPart_genPartIdxMother.begin(), GenPart_genPartIdxMother.end(), motherPdgId.begin(), [GenPart_pdgId](int i) {return GenPart_pdgId[i];})");
+               //.Define("genpart_pdgid", "GenPart_pdgId")
+               //.Define("isFromW", "abs(GenPart_pdgId[GenPart_genPartIdxMother]) == 24")
+                //.Define("isMuon", "abs(GenPart_pdgId) == 13")
+                //.Define("motherOfMuon", "GenPart_genPartIdxMother[isMuon] || 0")
+                //.Define("isFromW", "abs(GenPart_pdgId[motherOfMuon]) == 24");
+               //.Define("Muons", "GenPart_pdgId[is]");
+               /*
+               std::transform(GenPart_genPartIdxMother.first(),
+                              GenPart_genPartIdxMother.end(),
+                              motherPdgId.first(),
+                              [](int i) {return GenPart_pdgId[i]})
+               */
+               //.Define("fromTprime", "GenPart_pdgId[GenPart_genPartIdxMother]")
+               //.Define("ThreeMuonsFromW", "(abs(GenPart_pdgId[GenPart_genPartIdxMother[-1]]) == 24 && abs(GenPart_pdgId) == 13).size() == 3");
+               //.Define("HfromTprime", "GenPart_pdgId[fromTprime] == 25")
+               //.Define("WfromTprime", "abs(GenPart_pdgId[fromTprime]) == 24");
 }
 
 /// @brief Find good electrons
@@ -145,9 +176,14 @@ void TopHiggsTrileptonAnalyser::selectMuons()
                .Define("Selected_muon_deltaphi_01", "abs(ROOT::VecOps::DeltaPhi(Selected_muon_phi[0], Selected_muon_phi[1]))")
                .Define("Selected_muon_deltaphi_02", "abs(ROOT::VecOps::DeltaPhi(Selected_muon_phi[0], Selected_muon_phi[2]))")
                .Define("Selected_muon_deltaphi_12", "abs(ROOT::VecOps::DeltaPhi(Selected_muon_phi[1], Selected_muon_phi[2]))")
-               .Define("Selected_muon_deltaR_01", "ROOT::VecOps::DeltaR(Selected_muon_eta[0], Selected_muon_eta[1], Selected_muon_phi[0], Selected_muon_phi[1])")
-               .Define("Selected_muon_deltaR_02", "ROOT::VecOps::DeltaR(Selected_muon_eta[0], Selected_muon_eta[2], Selected_muon_phi[0], Selected_muon_phi[2])")
-               .Define("Selected_muon_deltaR_12", "ROOT::VecOps::DeltaR(Selected_muon_eta[1], Selected_muon_eta[2], Selected_muon_phi[1], Selected_muon_phi[2])")
+               .Define("dR01", "ROOT::VecOps::DeltaR(Selected_muon_eta[0], Selected_muon_eta[1], Selected_muon_phi[0], Selected_muon_phi[1])")
+               .Define("dR02", "ROOT::VecOps::DeltaR(Selected_muon_eta[0], Selected_muon_eta[2], Selected_muon_phi[0], Selected_muon_phi[2])")
+               .Define("dR12", "ROOT::VecOps::DeltaR(Selected_muon_eta[1], Selected_muon_eta[2], Selected_muon_phi[1], Selected_muon_phi[2])")
+               .Define("Selected_muon_deltaR_min", "min(min(dR01, dR02), dR12)")
+               .Define("a01", "(Selected_muon_charge[0]*Selected_muon_charge[1] + 1) / 2")
+               .Define("a02", "(Selected_muon_charge[0]*Selected_muon_charge[2] + 1) / 2")
+               .Define("a12", "(Selected_muon_charge[1]*Selected_muon_charge[2] + 1) / 2")
+               .Define("Selected_muon_deltaR_min_neutral", "min(dR01*a12 + dR02*a01 + dR12*a02, dR02*a12 + dR12*a01 + dR01*a02)")
                //.Define("Selected_muon_miniPFRelIso_all", "Muon_miniPFRelIso_all[goodMuons]")
                //.Define("Selected_muon_miniPFRelIso_chg", "Muon_miniPFRelIso_chg[goodMuons]")
                //.Define("Selected_muon_pfRelIso03_all", "Muon_pfRelIso03_all[goodMuons]")
@@ -166,6 +202,8 @@ void TopHiggsTrileptonAnalyser::selectMuons()
 
     _rlm = _rlm.Define("Vectorial_sum_three_muons", "muon4vecs[0] + muon4vecs[1] + muon4vecs[2]")
                .Define("Vectorial_sum_three_muons_mass", "Vectorial_sum_three_muons.M()");
+
+    //_rlm = _rlm.Define("dimuon_candidates", ::dimuon, {"muon4vecs", "Selected_muon_charge"});
 
     /// https://twiki.cern.ch/twiki/bin/view/Main/PdgId
     /// https://pdg.lbl.gov/2019/reviews/rpp2018-rev-monte-carlo-numbering.pdf
@@ -411,7 +449,12 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
     printDebugInfo(__LINE__, __FUNCTION__);
   
     // Define St
-    addVar({"St", "Sum(Selected_electron_pt) + Sum(Selected_muon_pt) + Sum(Selected_jet_pt)"}); 
+    addVar({"St", "Sum(Selected_electron_pt) + Sum(Selected_muon_pt) + Sum(Selected_jet_pt)"});
+    
+    //addVar({"dimuon_deltaphi", "abs(dimuon_candidates[0])", ""});
+    //addVar({"dimuon_deltaR", "dimuon_candidates[1]", ""});
+    //addVartoStore("dimuon_deltaphi");
+    //addVartoStore("dimuon_deltaR");
 
     /// @brief Store variables in tree
     /// @details Define variables that you want to store in the tree
@@ -449,9 +492,14 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
     addVartoStore("Selected_muon_deltaphi_01");
     addVartoStore("Selected_muon_deltaphi_02");
     addVartoStore("Selected_muon_deltaphi_12");
-    addVartoStore("Selected_muon_deltaR_01");
-    addVartoStore("Selected_muon_deltaR_02");
-    addVartoStore("Selected_muon_deltaR_12");
+    addVartoStore("dR01");
+    addVartoStore("dR02");
+    addVartoStore("dR12");
+    addVartoStore("a01");
+    addVartoStore("a02");
+    addVartoStore("a12");
+    addVartoStore("Selected_muon_deltaR_min");
+    addVartoStore("Selected_muon_deltaR_min_neutral");
     //addVartoStore("Selected_muon_miniPFRelIso_all");
     //addVartoStore("Selected_muon_miniPFRelIso_chg");
     //addVartoStore("Selected_muon_pfRelIso03_all");
@@ -464,6 +512,16 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
     addVartoStore("muon4vecs");
     addVartoStore("Vectorial_sum_two_muons");
     addVartoStore("Vectorial_sum_two_muons_mass");
+
+    //addVartoStore("motherPdgId");
+    //addVartoStore("pdgIdMother");
+
+    addVartoStore("isMuon");
+    addVartoStore("motherOfMuon");
+    addVartoStore("isFromW");
+
+    //addVartoStore("isMuon");
+    //addVartoStore("ThreeMuonsFromW");
 
     // Reconstructed muons
     /*
@@ -543,9 +601,12 @@ void TopHiggsTrileptonAnalyser::bookHists()
     //add1DHist({"Deltaphi01_Muons", "Delta#phi (leading muon, subleading muon)", 30, 0.0, 4.0}, "Selected_muon_deltaphi_01", "one", "");
     //add1DHist({"Deltaphi02_Muons", "Delta#phi (leading muon, subsubleading muon)", 30, 0.0, 4.0}, "Selected_muon_deltaphi_02", "one", "");
     //add1DHist({"Deltaphi12_Muons", "Delta#phi (subleading muon, subsubleading muon)", 30, 0.0, 4.0}, "Selected_muon_deltaphi_12", "one", "");
-    add1DHist({"DeltaR01_Muons", "DeltaR (muon 0, muon 1);DeltaR between leading and subleading muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_01", "one", "");
-    add1DHist({"DeltaR02_Muons", "DeltaR (muon 0, muon 2);DeltaR between leading and subsubleading muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_02", "one", "");
-    add1DHist({"DeltaR12_Muons", "DeltaR (muon 1, muon 2);DeltaR between subleading and subsubleading muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_12", "one", "");
+    //add1DHist({"DeltaR01_Muons", "DeltaR (muon 0, muon 1);DeltaR between leading and subleading muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_01", "one", "");
+    //add1DHist({"DeltaR02_Muons", "DeltaR (muon 0, muon 2);DeltaR between leading and subsubleading muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_02", "one", "");
+    //add1DHist({"DeltaR12_Muons", "DeltaR (muon 1, muon 2);DeltaR between subleading and subsubleading muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_12", "one", "");
+    add1DHist({"DeltaR_min_Muons", "DeltaR min;Minimum DeltaR between 2 muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_min", "one", "");
+    add1DHist({"DeltaR_min_Muons_Opp_Charge", "DeltaR min;Minimum DeltaR between 2 muons of opp. charge;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_min_neutral", "one", "");
+    //add1DHist({"DeltaR_min_Dimuon", "DeltaR min;Minimum DeltaR between 2 muons of opposite charges;Events", 30, 0.0, 6.0}, "dimuon_deltaR", "one", "");
     //add1DHist({"Sum_Mass_Two_Muons", "Invariant mass of the two muons", 20, 0.0, 1.0}, "Vectorial_sum_two_muons_mass", "one", "");
     //add1DHist({"miniPFRelIso_all_Muons", "miniPFRel_all isolation variable between the 2 muons", 50, 0.0, 10.0}, "Selected_muon_miniPFRelIso_all", "one", "");
     //add1DHist({"miniPFRelIso_chg_Muons", "miniPFRel_chg isolation variable between the 2 muons", 50, 0.0, 10.0}, "Selected_muon_miniPFRelIso_chg", "one", "");
@@ -575,9 +636,10 @@ void TopHiggsTrileptonAnalyser::bookHists()
 void TopHiggsTrileptonAnalyser::setTree(TTree *t, std::string outfilename)
 {
 	if (debug){
-        std::cout<< "================================//=================================" << std::endl;
-        std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
-        std::cout<< "================================//=================================" << std::endl;
+        std::cout << "=============================//=============================" << std::endl;
+        std::cout << "Line: " << __LINE__ << std::endl;
+        std::cout << "Func: " << __FUNCTION__ << std::endl;
+        std::cout << "=============================//=============================" << std::endl;
     }
 
 	_rd = ROOT::RDataFrame(*t);
@@ -602,6 +664,7 @@ void TopHiggsTrileptonAnalyser::setupObjects()
 	selectElectrons();
 	selectMuons();
 	selectJets();
+    selectSignal();
 	//removeOverlaps();
 
 }

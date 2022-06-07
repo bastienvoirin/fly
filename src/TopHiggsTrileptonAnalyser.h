@@ -22,6 +22,7 @@ class TopHiggsTrileptonAnalyser: public NanoAODAnalyzerrdframe
         void selectElectrons();
         void selectMuons();
         void selectJets();
+        void selectSignal();
         //void removeOverlaps();
         //void selectFatJets();
         //void calculateEvWeight();
