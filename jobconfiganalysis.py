@@ -14,7 +14,6 @@ config = {
         'runtype': 'UL',
         'datatype': -1,
 
-
         #for correction
         # good json file
         'goodjson': 'data/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt',
@@ -37,8 +36,7 @@ config = {
         # jet uncertainty 
         'jercunctag': 'Summer19UL16_V7_MC_Total_AK4PFchs', 
         #'jercunctag': 'Summer19UL17_V5_MC_Total_AK4PFchs', 
-        
-        }
+}
 
 # processing options
 procflags = {
@@ -55,7 +53,9 @@ procflags = {
         'saveallbranches': False,
         #How many input files?
         'nrootfiles': 1,
-        }
+        # isSignal?
+        'isSignal': True
+}
 
 # input directory where your input root tree resides
 # output directory wheere your output should go
@@ -65,4 +65,3 @@ nanoaod_inputdir_outputdir_pairs = [
         #['processed/2016','analyzed/t_test_nan0v1.root', 'stderrout.out' ],
         ['rootfiles','analysed/analysed.root', 'stderrout.log' ],
 ]
-

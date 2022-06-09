@@ -220,3 +220,54 @@ floats compute_DR (FourVectorVec &muons, ints goodMuons_charge){
 
 }
 
+
+floats dimuon (FourVectorVec &muons, ints Muon_charge)
+{
+      floats out;
+      float dimuonDphi;
+      float dimuonDR;
+      float minDimuonDphi = 5.;
+      float minDimuonDR = 5.;
+        
+      // Loop over all selected muons
+      for (unsigned int j1 = 0; j1 < muons.size(); j1++)
+      {
+        for (unsigned int j2 = j1 + 1; j2 < muons.size(); j2++)
+        {
+          // Select 2 muons of opposite charge
+          if (Muon_charge[j1] != Muon_charge[j2])
+          {
+            dimuonDphi = ROOT::Math::VectorUtil::DeltaPhi(muons[j1],muons[j2]);
+            dimuonDR = ROOT::Math::VectorUtil::DeltaR(muons[j1],muons[j2]);
+            if (dimuonDR < minDimuonDR)
+            {
+              minDimuonDphi = dimuonDphi;
+              minDimuonDR = dimuonDR;            
+            }
+          }
+        }
+      }
+      out.push_back(minDimuonDphi);
+      out.push_back(minDimuonDR);
+      return out;
+}
+
+ints nearest(floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge1, ints charge2)
+{
+  ints out = {-1, -1};
+  float mindr = FLT_MAX;
+  for (unsigned int i = 0; i < eta1.size(); i++)
+  {
+    for (unsigned int j = i+1; j < eta2.size(); j++)
+    {
+      auto dr = ROOT::VecOps::DeltaR(eta1[i], eta2[j], phi1[i], phi2[j]);
+      if (dr < mindr and charge1[i] != charge2[j])
+      {
+        out = {i, j};
+        mindr = dr;
+      }
+    }
+  }
+  return out;
+}
+

@@ -9,7 +9,7 @@ def submit(jobconfmod):
 
     # get input directory, outputdirectory, stderrout file from the job configuration python module
     mod = import_module(jobconfmod)
-    nanoaod_inputdir_outputdir_pairs= getattr(mod, 'nanoaod_inputdir_outputdir_pairs')
+    nanoaod_inputdir_outputdir_pairs = getattr(mod, 'nanoaod_inputdir_outputdir_pairs')
 
     # job configuation module name is to be passed to the skim nanoaod main 
     for indir,outdir,outfile in nanoaod_inputdir_outputdir_pairs:
@@ -19,7 +19,7 @@ def submit(jobconfmod):
 if __name__=="__main__":
     from argparse import ArgumentParser
     parser = ArgumentParser(usage="%prog jobconfigmodule", description='submits skim jobs in background where the job '\
-        +' configuration python module name should be passedd')
+        +' configuration python module name should be passed')
     parser.add_argument("jobconfmod")
     args = parser.parse_args()
 

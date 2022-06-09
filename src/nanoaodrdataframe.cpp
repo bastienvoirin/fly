@@ -34,7 +34,7 @@ int main(void) {
 	string jercunctag = "Summer19UL17_V5_MC_Total_AK4PFchs";
 
 	nanoaodrdf.setupCorrections(goodjsonfname, pileupfname, pileuptag, btvfname, btvtype, jercfname, jerctag, jercunctag);
-	nanoaodrdf.setupObjects();
+	nanoaodrdf.setupObjects(true);
 	nanoaodrdf.setupAnalysis();
 	nanoaodrdf.run(false, "outputTree");
 

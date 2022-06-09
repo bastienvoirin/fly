@@ -202,9 +202,9 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
     for  fname in fullnamelist:
         if re.match('.*\.root', fname) and os.path.isfile(fname): # if it has .root file extension
             counter+=1
-            if counter<=procflags['nrootfiles'] and procflags['nrootfiles'] !=0 : #singledir fonksiyonu class icinde olmadigi icin proflags icinden rootfiles cagirdik
+            if counter<=procflags['nrootfiles'] and procflags['nrootfiles'] != 0 : #singledir fonksiyonu class icinde olmadigi icin proflags icinden rootfiles cagirdik
                 rootfilestoprocess.append(fname)
-            elif procflags['nrootfiles'] ==0 :
+            elif procflags['nrootfiles'] == 0 :
                 rootfilestoprocess.append(fname)
 
     print("files to process")
@@ -216,15 +216,15 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
     for afile in rootfilestoprocess:
         t.Add(afile)
     nevents= t.GetEntries()
-    print("-------------------------------------------------------------------")
+    print("------------------------------------------------------------")
     print("Total Number of Entries:")
     print(nevents)
-    print("-------------------------------------------------------------------")
+    print("------------------------------------------------------------")
 
     #aproc = ROOT.FourtopAnalyzer(t, outputroot)
     #aproc = ROOT.BaseAnalyser(t, outputroot)
     aproc = ROOT.TopHiggsTrileptonAnalyser(t, outputroot)
-    aproc.setParams(config['year'], config['runtype'],config['datatype']) 
+    aproc.setParams(config['year'], config['runtype'], config['datatype']) 
     #
     #if your input root file already has good json, various corrections applied with
     #object clean up, you should skip the corrections step
@@ -234,8 +234,9 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
     #aproc.setupCorrections(config['goodjson'], config['pileupfname'], config['pileuptag']\
     #    , config['btvfname'], config['btvtype'], config['jercfname'], config['jerctag'], config['jercunctag'])
 
-    sys.stdout.flush() #to force printout in right order 
-    aproc.setupObjects()
+    sys.stdout.flush() #to force printout in right order
+    print("isSignal:", procflags["isSignal"])
+    aproc.setupObjects(procflags["isSignal"])
     #else:
     #    print("Skipping corrections step")
     #time.sleep(3)

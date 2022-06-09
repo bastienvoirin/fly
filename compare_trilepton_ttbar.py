@@ -27,9 +27,22 @@ def setWorkingDir():
     return
 
 # Compile and run the analysis program
-def compileRun():
+def compileRun(filename):
     run("make -j24 > make.log 2>&1") # Redirect stdout & stderr to make.log
+    if "signal" in filename:
+        content = ""
+        with open("jobconfiganalysis.py", "r") as f:
+            content = f.read()
+        with open("jobconfiganalysis.py", "w") as f:
+            f.write(content.replace("'isSignal': False", "'isSignal': True"))
+    else:
+        content = ""
+        with open("jobconfiganalysis.py", "r") as f:
+            content = f.read()
+        with open("jobconfiganalysis.py", "w") as f:
+            f.write(content.replace("'isSignal': True", "'isSignal': False"))
     run("./submitanalysisjob.py jobconfiganalysis.py")
+    run("cat stderrout.log")
     return
 
 def fetch(directory, command="ls"):
@@ -41,7 +54,7 @@ def fetch(directory, command="ls"):
 # List files in a given directory in a condensed format
 def ls(directory):
     command = f"ls {directory}"
-    util = lambda cmd: popen(cmd).read().strip().replace("\n", " ") or "-"
+    util = lambda cmd: popen(cmd).read().strip().replace("\n", " ") or ""
     print(colored(command, "cyan"), util(command))
     return
 
@@ -83,10 +96,10 @@ if __name__ == "__main__":
     run("source /cvmfs/cms.cern.ch/slc7_amd64_gcc900/lcg/root/6.24.07-db9b7135424812ed5b8723a7a77f4016/bin/thisroot.sh")
     run("make clean")
 
-    compileRun()
+    compileRun(currFile)
     currRootfilename = rootfilename.replace("#", currFile)
     run(f"mv analysed/analysed.root {currRootfilename}")
-    analyse(currRootfilename)
+    #analyse(currRootfilename)
 
     # Fetch the filename of the other data set
     otherFile = fetch(storage)
@@ -95,12 +108,18 @@ if __name__ == "__main__":
     swapDirectories(usage, currFile, storage, otherFile)
 
     print("Processing", colored(fetch(usage, "ls"), "yellow"))
-    compileRun()
+    compileRun(otherFile)
     otherRootfilename = rootfilename.replace("#", otherFile)
     run(f"mv analysed/analysed.root {otherRootfilename}")
-    analyse(otherRootfilename)
+    #analyse(otherRootfilename)
 
     # TODO: joint analysis/comparison/stack plots
 
     # Swap data sets a second time to restore the original state
     swapDirectories(usage, otherFile, storage, currFile)
+
+    content = ""
+    with open("jobconfiganalysis.py", "r") as f:
+        content = f.read()
+    with open("jobconfiganalysis.py", "w") as f:
+        f.write(content.replace("'isSignal': False", "'isSignal': True"))
