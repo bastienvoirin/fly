@@ -185,8 +185,6 @@ void TopHiggsTrileptonAnalyser::selectMuons()
     //_rlm = _rlm.Define("dimuon_candidates", ::dimuon, {"muon4vecs", "Selected_muon_charge"});
     _rlm = _rlm.Define("dimuon", ::nearest, {"Selected_muon_eta", "Selected_muon_eta", "Selected_muon_phi", "Selected_muon_phi", "Selected_muon_charge", "Selected_muon_charge"})
                .Define("dimuon_deltaR", "ROOT::VecOps::DeltaR(Selected_muon_eta[dimuon[0]], Selected_muon_eta[dimuon[1]], Selected_muon_phi[dimuon[0]], Selected_muon_phi[dimuon[1]])")
-               .Define("Vectorial_sum_dimuon", "muon4vecs[dimuon[0]] + muon4vecs[dimuon[1]]")
-               .Define("Vectorial_sum_dimuon_mass", "Vectorial_sum_dimuon.M()")
                .Define("DeltaPhi_dimuon", "abs(ROOT::VecOps::DeltaPhi(Selected_muon_phi[dimuon[0]], Selected_muon_phi[dimuon[1]]))");
 
     /// https://twiki.cern.ch/twiki/bin/view/Main/PdgId
@@ -506,6 +504,8 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
     addVartoStore("dimuon");
     addVartoStore("dimuon_deltaR");
 
+    _rlm = _rlm.Define("Vectorial_sum_dimuon", "muon4vecs[dimuon[0]] + muon4vecs[dimuon[1]]")
+               .Define("Vectorial_sum_dimuon_mass", "Vectorial_sum_dimuon.M()");
     addVartoStore("Vectorial_sum_dimuon");
     addVartoStore("Vectorial_sum_dimuon_mass");
 
@@ -603,9 +603,9 @@ void TopHiggsTrileptonAnalyser::bookHists()
     add1DHist({"DeltaR_min_Muons_Opp_Charge", "DeltaR min;Minimum DeltaR between 2 muons of opp. charge;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_min_neutral", "one", "");
     
     add1DHist({"s_T", "s_T;s_T;Events", 20, 0.0, 600.0}, "St", "one", "0");
-    //add1DHist({"Dimuon_mass", "M(dimuon);Mass of the dimuon;Events", 30, 0.0, 150.0}, "Vectorial_sum_dimuon_mass", "one", "00");
-    add1DHist({"bl_mass", "M(bl);Mass of the bl;Events", 30, 0.0, 200.0}, "Vectorial_sum_bl_mass", "one", "000");    
-    add1DHist({"DeltaPhi_dimuon", "DeltaPhi(dimuon);DeltaPhi between the nearest muons;Events", 30, 0.0, 3.2}, "DeltaPhi_dimuon", "one", "");
+    add1DHist({"Dimuon_mass", "M(dimuon);Mass of the dimuon;Events", 30, 0.0, 120.0}, "Vectorial_sum_dimuon_mass", "one", "00");
+    add1DHist({"bl_mass", "M(bl);Mass of the bl;Events", 30, 0.0, 210.0}, "Vectorial_sum_bl_mass", "one", "000");    
+    add1DHist({"DeltaPhi_dimuon", "DeltaPhi(dimuon);DeltaPhi between the nearest muons;Events", 30, 0.0, 3.3}, "DeltaPhi_dimuon", "one", "");
 
     //add1DHist({"DeltaR_min_Dimuon", "DeltaR min;Minimum DeltaR between 2 muons of opposite charges;Events", 30, 0.0, 6.0}, "dimuon_deltaR", "one", "");
     //add1DHist({"Sum_Mass_Two_Muons", "Invariant mass of the two muons", 20, 0.0, 1.0}, "Vectorial_sum_two_muons_mass", "one", "");
