@@ -84,10 +84,45 @@ void TopHiggsTrileptonAnalyser::defineCuts()
     addCuts("Selected_muon_number == 3 && abs(Selected_muon_charge_sum) == 1", "00");
     // At least 1 b-tagged jet (t => W, b => lν, jet): relevant for WZ background, not for ttbar
     addCuts("Selected_bjet_number >= 1", "000");
+    addCuts("Selected_muon_sum_all_muons_pt >= 160.0", "0000");
 
-    // Punzi-based cuts (May 20)
-    addCuts("Selected_muon_sum_all_muons_pt >= 130.0", "0000");
-    addCuts("Selected_muon_deltaR_min_neutral <= 1.0", "00000");
+    // Punzi-based cuts (May 20 - )
+
+    //(//addCuts("Selected_muon_deltaR_min_neutral <= 0.8", "00000");
+    //(//addCuts("abs(Muon_pair_0_mass - 91) >= 4 && abs(Muon_pair_1_mass - 91) >= 4", "000000");
+
+    //(//addCuts("Selected_muon_deltaR_min_neutral <= 0.8", "00000");
+    //(//addCuts("abs(Muon_pair_0_mass - 91) >= 8 && abs(Muon_pair_1_mass - 91) >= 8", "000000");
+
+
+
+    //(10//addCuts("Selected_muon_deltaR_min_neutral <= 1.2", "00000");
+    //(10//addCuts("abs(Muon_pair_0_mass - 91) >= 12 && abs(Muon_pair_1_mass - 91) >= 12", "000000");
+
+    //(99)//addCuts("Selected_muon_deltaR_min_neutral <= 0.8", "00000");
+    //(99)//addCuts("abs(Muon_pair_0_mass - 91) >= 12 && abs(Muon_pair_1_mass - 91) >= 12", "000000");
+
+    //(12//addCuts("Selected_muon_deltaR_min_neutral <= 1.2", "00000");
+    //(12//addCuts("abs(dimuon_0_mass - 91) >= 8 && abs(dimuon_pair_1_mass - 91) >= 8", "000000");
+
+    //(13//addCuts("Selected_muon_deltaR_min_neutral <= 0.8", "00000");
+    //(13//addCuts("abs(dimuon_0_mass - 91) >= 8 && abs(dimuon_pair_1_mass - 91) >= 8", "000000");
+
+
+
+
+
+    //(14//addCuts("Selected_muon_deltaR_min_neutral <= 1.2", "00000");
+    //(14//addCuts("abs(Muon_pair_0_mass - 91) >= 16 && abs(Muon_pair_1_mass - 91) >= 16", "000000");
+
+    //(15//addCuts("Selected_muon_deltaR_min_neutral <= 0.8", "00000");
+    //(15//addCuts("abs(Muon_pair_0_mass - 91) >= 16 && abs(Muon_pair_1_mass - 91) >= 16", "000000");
+
+    //(16//addCuts("Selected_muon_deltaR_min_neutral <= 1.2", "00000");
+    //(16//addCuts("abs(dimuon_0_mass - 91) >= 16 && abs(dimuon_pair_1_mass - 91) >= 16", "000000");
+
+    //(17//addCuts("Selected_muon_deltaR_min_neutral <= 0.8", "00000");
+    //(17//addCuts("abs(dimuon_0_mass - 91) >= 16 && abs(dimuon_pair_1_mass - 91) >= 16", "000000");
 }
 
 /// @brief
@@ -135,7 +170,7 @@ void TopHiggsTrileptonAnalyser::selectMuons()
 
     // Define good muons
     _rlm = _rlm.Define("goodMuonID", MuonID(4));
-    _rlm = _rlm.Define("goodMuons", "goodMuonID && Muon_pt > 20 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.05")
+    _rlm = _rlm.Define("goodMuons", "goodMuonID && Muon_pt > 20 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.05 && Muon_sip3d < 3")
                .Define("Selected_muon_pt", "Muon_pt[goodMuons]")
                .Define("Selected_muon_leading_pt", "Selected_muon_pt[0]")
                .Define("Selected_muon_subleading_pt", "Selected_muon_pt[1]")
@@ -171,13 +206,21 @@ void TopHiggsTrileptonAnalyser::selectMuons()
                .Define("Selected_muon_genPartIdx", "Muon_genPartIdx[goodMuons]")
                .Define("Selected_muon_genPartFlav", "Muon_genPartFlav[goodMuons]")
                .Define("Selected_muon_pdgId", "Muon_pdgId[goodMuons]")
-               .Define("Selected_muon_idx", ::good_idx, {"goodMuons"});
+               .Define("Selected_muon_idx", ::good_idx, {"goodMuons"})
+               .Define("Muon_pair_0_orderby_pt_muon_0", "0")
+               .Define("Muon_pair_0_orderby_pt_muon_1", "2-1*abs(Muon_charge[0]-Muon_charge[1])/2")
+               .Define("Muon_pair_1_orderby_pt_muon_0", "1*abs(Muon_charge[1]-Muon_charge[2])/2")
+               .Define("Muon_pair_1_orderby_pt_muon_1", "2");
 
     // Generate muon 4-vectors
     _rlm = _rlm.Define("muon4vecs", ::generate_4vec, {"Selected_muon_pt",
                                                       "Selected_muon_eta",
                                                       "Selected_muon_phi",
-                                                      "Selected_muon_mass"});
+                                                      "Selected_muon_mass"})
+               .Define("Muon_pair_0_vectsum", "muon4vecs[Muon_pair_0_orderby_pt_muon_0] + muon4vecs[Muon_pair_0_orderby_pt_muon_1]")
+               .Define("Muon_pair_1_vectsum", "muon4vecs[Muon_pair_1_orderby_pt_muon_0] + muon4vecs[Muon_pair_1_orderby_pt_muon_1]")
+               .Define("Muon_pair_0_mass", "Muon_pair_0_vectsum.M()")
+               .Define("Muon_pair_1_mass", "Muon_pair_1_vectsum.M()");
 
     //_rlm = _rlm.Define("Vectorial_sum_three_muons", "muon4vecs[0] + muon4vecs[1] + muon4vecs[2]")
     //           .Define("Vectorial_sum_three_muons_mass", "Vectorial_sum_three_muons.M()");
@@ -185,7 +228,11 @@ void TopHiggsTrileptonAnalyser::selectMuons()
     //_rlm = _rlm.Define("dimuon_candidates", ::dimuon, {"muon4vecs", "Selected_muon_charge"});
     _rlm = _rlm.Define("dimuon", ::nearest, {"Selected_muon_eta", "Selected_muon_eta", "Selected_muon_phi", "Selected_muon_phi", "Selected_muon_charge", "Selected_muon_charge"})
                .Define("dimuon_deltaR", "ROOT::VecOps::DeltaR(Selected_muon_eta[dimuon[0]], Selected_muon_eta[dimuon[1]], Selected_muon_phi[dimuon[0]], Selected_muon_phi[dimuon[1]])")
-               .Define("DeltaPhi_dimuon", "abs(ROOT::VecOps::DeltaPhi(Selected_muon_phi[dimuon[0]], Selected_muon_phi[dimuon[1]]))");
+               .Define("DeltaPhi_dimuon", "abs(ROOT::VecOps::DeltaPhi(Selected_muon_phi[dimuon[0]], Selected_muon_phi[dimuon[1]]))")
+               .Define("dimuon_0_vectsum", "muon4vecs[dimuon[0]] + muon4vecs[dimuon[1]]")
+               .Define("dimuon_1_vectsum", "muon4vecs[dimuon[2]] + muon4vecs[dimuon[3]]")
+               .Define("dimuon_0_mass", "dimuon_0_vectsum.M()")
+               .Define("dimuon_1_mass", "dimuon_1_vectsum.M()");
 
     /// https://twiki.cern.ch/twiki/bin/view/Main/PdgId
     /// https://pdg.lbl.gov/2019/reviews/rpp2018-rev-monte-carlo-numbering.pdf
@@ -511,6 +558,20 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
 
     addVartoStore("DeltaPhi_dimuon");
 
+    addVartoStore("Muon_pair_0_orderby_pt_muon_0");
+    addVartoStore("Muon_pair_0_orderby_pt_muon_1");
+    addVartoStore("Muon_pair_1_orderby_pt_muon_0");
+    addVartoStore("Muon_pair_1_orderby_pt_muon_1");
+    addVartoStore("Muon_pair_0_vectsum");
+    addVartoStore("Muon_pair_1_vectsum");
+    addVartoStore("Muon_pair_0_mass");
+    addVartoStore("Muon_pair_1_mass");
+
+    addVartoStore("dimuon_0_vectsum");
+    addVartoStore("dimuon_1_vectsum");
+    addVartoStore("dimuon_0_mass");
+    addVartoStore("dimuon_1_mass");
+
     // Reconstructed muons
     /*
     addVartoStore("sel_muongenW");
@@ -581,6 +642,7 @@ void TopHiggsTrileptonAnalyser::bookHists()
 {
     printDebugInfo(__LINE__, __FUNCTION__);
 
+    
     add1DHist( {"hnevents", "Number of Events", 2, -0.5, 1.5}, "one", "evWeight", "");
     
     // Muons
@@ -605,7 +667,12 @@ void TopHiggsTrileptonAnalyser::bookHists()
     add1DHist({"s_T", "s_T;s_T;Events", 20, 0.0, 600.0}, "St", "one", "0");
     add1DHist({"Dimuon_mass", "M(dimuon);Mass of the dimuon;Events", 30, 0.0, 120.0}, "Vectorial_sum_dimuon_mass", "one", "00");
     add1DHist({"bl_mass", "M(bl);Mass of the bl;Events", 30, 0.0, 210.0}, "Vectorial_sum_bl_mass", "one", "000");    
-    add1DHist({"DeltaPhi_dimuon", "DeltaPhi(dimuon);DeltaPhi between the nearest muons;Events", 30, 0.0, 3.3}, "DeltaPhi_dimuon", "one", "");
+    add1DHist({"DeltaPhi_dimuon", "DeltaPhi(dimuon);DeltaPhi between the nearest muons;Events", 30, 0.0, 3.3}, "DeltaPhi_dimuon", "one", "00");
+
+    add1DHist({"Muon_pair_0_mass", "M(dimuon 0) [pt];M(dimuon 0);Events", 150, 0.0, 300.0}, "Muon_pair_0_mass", "one", "00");
+    add1DHist({"Muon_pair_1_mass", "M(dimuon 1) [pt];M(dimuon 1);Events", 150, 0.0, 300.0}, "Muon_pair_1_mass", "one", "00");
+    add1DHist({"dimuon_0_mass", "M(dimuon 0) [dr];M(dimuon 0);Events", 150, 0.0, 300.0}, "dimuon_0_mass", "one", "00");
+    add1DHist({"dimuon_1_mass", "M(dimuon 1) [dr];M(dimuon 1);Events", 150, 0.0, 300.0}, "dimuon_1_mass", "one", "00");
 
     //add1DHist({"DeltaR_min_Dimuon", "DeltaR min;Minimum DeltaR between 2 muons of opposite charges;Events", 30, 0.0, 6.0}, "dimuon_deltaR", "one", "");
     //add1DHist({"Sum_Mass_Two_Muons", "Invariant mass of the two muons", 20, 0.0, 1.0}, "Vectorial_sum_two_muons_mass", "one", "");
