@@ -77,52 +77,15 @@ void TopHiggsTrileptonAnalyser::defineCuts()
     std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
 
     // Preliminary cut: generator-level signal selection (3 muons from W bosons)
-    addCuts("IsSignal == 0 || (IsSignal == 1 && Sum(IsFromW) >= 3)", "0");
+    addCuts("IsSignal == 0 || IsSignal == 1", "0");// && Sum(IsFromW) >= 3)", "0");
 
     // Basic cuts
     // 3-lepton final state (T' => t, H^0 => WW, Wb => (lν, lν), (lν, jet))
-    addCuts("Selected_muon_number == 3 && abs(Selected_muon_charge_sum) == 1", "00");
+    addCuts("sel_lepton_number == 3", "00");// && abs(sel_lepton_charge_sum) == 1
+
     // At least 1 b-tagged jet (t => W, b => lν, jet): relevant for WZ background, not for ttbar
-    addCuts("Selected_bjet_number >= 1", "000");
-    addCuts("Selected_muon_sum_all_muons_pt >= 160.0", "0000");
-
-    // Punzi-based cuts (May 20 - )
-
-    //(//addCuts("Selected_muon_deltaR_min_neutral <= 0.8", "00000");
-    //(//addCuts("abs(Muon_pair_0_mass - 91) >= 4 && abs(Muon_pair_1_mass - 91) >= 4", "000000");
-
-    //(//addCuts("Selected_muon_deltaR_min_neutral <= 0.8", "00000");
-    //(//addCuts("abs(Muon_pair_0_mass - 91) >= 8 && abs(Muon_pair_1_mass - 91) >= 8", "000000");
-
-
-
-    //(10//addCuts("Selected_muon_deltaR_min_neutral <= 1.2", "00000");
-    //(10//addCuts("abs(Muon_pair_0_mass - 91) >= 12 && abs(Muon_pair_1_mass - 91) >= 12", "000000");
-
-    //(99)//addCuts("Selected_muon_deltaR_min_neutral <= 0.8", "00000");
-    //(99)//addCuts("abs(Muon_pair_0_mass - 91) >= 12 && abs(Muon_pair_1_mass - 91) >= 12", "000000");
-
-    //(12//addCuts("Selected_muon_deltaR_min_neutral <= 1.2", "00000");
-    //(12//addCuts("abs(dimuon_0_mass - 91) >= 8 && abs(dimuon_pair_1_mass - 91) >= 8", "000000");
-
-    //(13//addCuts("Selected_muon_deltaR_min_neutral <= 0.8", "00000");
-    //(13//addCuts("abs(dimuon_0_mass - 91) >= 8 && abs(dimuon_pair_1_mass - 91) >= 8", "000000");
-
-
-
-
-
-    //(14//addCuts("Selected_muon_deltaR_min_neutral <= 1.2", "00000");
-    //(14//addCuts("abs(Muon_pair_0_mass - 91) >= 16 && abs(Muon_pair_1_mass - 91) >= 16", "000000");
-
-    //(15//addCuts("Selected_muon_deltaR_min_neutral <= 0.8", "00000");
-    //(15//addCuts("abs(Muon_pair_0_mass - 91) >= 16 && abs(Muon_pair_1_mass - 91) >= 16", "000000");
-
-    //(16//addCuts("Selected_muon_deltaR_min_neutral <= 1.2", "00000");
-    //(16//addCuts("abs(dimuon_0_mass - 91) >= 16 && abs(dimuon_pair_1_mass - 91) >= 16", "000000");
-
-    //(17//addCuts("Selected_muon_deltaR_min_neutral <= 0.8", "00000");
-    //(17//addCuts("abs(dimuon_0_mass - 91) >= 16 && abs(dimuon_pair_1_mass - 91) >= 16", "000000");
+    //addCuts("sel_bjet_number >= 1", "000");
+    //addCuts("sel_lepton_sum_3_lepton_pt >= 160.0", "0000");
 }
 
 /// @brief
@@ -145,20 +108,28 @@ void TopHiggsTrileptonAnalyser::selectElectrons()
     printDebugInfo(__LINE__, __FUNCTION__);
 
     _rlm = _rlm.Define("goodElecID", ElectronID(2));
-    _rlm = _rlm.Define("goodElectrons", "goodElecID && Electron_pt > 20 && abs(Electron_eta) < 2.5")
-               .Define("Selected_electron_pt", "Electron_pt[goodElectrons]")
-               .Define("Selected_electron_sum_all_electrons_pt", "Sum(Selected_electron_pt)")
-               .Define("Selected_electron_eta", "Electron_eta[goodElectrons]")
-               .Define("Selected_electron_phi", "Electron_phi[goodElectrons]")
-               .Define("Selected_electron_mass", "Electron_mass[goodElectrons]")
-               .Define("Selected_electron_idx", ::good_idx, {"goodElectrons"})
-               .Define("Selected_electron_number", "int(Selected_electron_pt.size())");
+    _rlm = _rlm.Define("goodElectrons", "goodElecID && Electron_pt > 20 && abs(Electron_eta) < 2.5 && Electron_sip3d < 3")//&& Electron_mvaTTH > 0.85 && abs(Electron_dxy) < 0.05 && abs(Electron_dz) < 0.1 && Electron_miniPFRelIso_all < 0.4
+               .Define("sel_el_pt", "Electron_pt[goodElectrons]")
+               .Define("sel_el_leading_pt", "sel_el_pt[0]")
+               .Define("sel_el_subleading_pt", "sel_el_pt[1]")
+               .Define("sel_el_subsubleading_pt", "sel_el_pt[2]")
+               .Define("sel_el_sum_two_el_pt", "sel_el_pt[0] + sel_el_pt[1]")
+               .Define("sel_el_sum_all_el_pt", "Sum(sel_el_pt)")
+               .Define("sel_el_eta", "Electron_eta[goodElectrons]")
+               .Define("sel_el_phi", "Electron_phi[goodElectrons]")
+               .Define("sel_el_mass", "Electron_mass[goodElectrons]")
+               .Define("sel_el_charge", "Electron_charge[goodElectrons]")
+               .Define("sel_el_charge_sum", "sel_el_charge[0] + sel_el_charge[1] + sel_el_charge[2]")
+               .Define("sel_el_number", "int(sel_el_pt.size())")
+               .Define("sel_el_genPartIdx", "Electron_genPartIdx[goodElectrons]")
+               .Define("sel_el_genPartFlav", "Electron_genPartFlav[goodElectrons]")
+               .Define("sel_el_pdgId", "Electron_pdgId[goodElectrons]");
 
     // Generate electron 4-vectors
-    _rlm = _rlm.Define("elec4vecs", ::generate_4vec, {"Selected_electron_pt",
-                                                      "Selected_electron_eta",
-                                                      "Selected_electron_phi",
-                                                      "Selected_electron_mass"});
+    _rlm = _rlm.Define("elec4vecs", ::generate_4vec, {"sel_el_pt",
+                                                      "sel_el_eta",
+                                                      "sel_el_phi",
+                                                      "sel_el_mass"});
 }
 
 /// @brief Find good muons
@@ -168,77 +139,81 @@ void TopHiggsTrileptonAnalyser::selectMuons()
     cout << "Selecting good muons" << endl;
     printDebugInfo(__LINE__, __FUNCTION__);
 
+    // TODO: https://root.cern/doc/master/group__vecops.html
+
     // Define good muons
     _rlm = _rlm.Define("goodMuonID", MuonID(4));
     _rlm = _rlm.Define("goodMuons", "goodMuonID && Muon_pt > 20 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.05 && Muon_sip3d < 3")
-               .Define("Selected_muon_pt", "Muon_pt[goodMuons]")
-               .Define("Selected_muon_leading_pt", "Selected_muon_pt[0]")
-               .Define("Selected_muon_subleading_pt", "Selected_muon_pt[1]")
-               .Define("Selected_muon_subsubleading_pt", "Selected_muon_pt[2]")
-               .Define("Selected_muon_sum_two_muons_pt", "Selected_muon_pt[0] + Selected_muon_pt[1]")
-               .Define("Selected_muon_sum_all_muons_pt", "Sum(Selected_muon_pt)")
-               .Define("Selected_muon_eta", "Muon_eta[goodMuons]")
-               .Define("Selected_muon_phi", "Muon_phi[goodMuons]")
-               .Define("Selected_muon_mass", "Muon_mass[goodMuons]")
-               .Define("Selected_muon_charge", "Muon_charge[goodMuons]")
-               .Define("Selected_muon_charge_sum", "Selected_muon_charge[0] + Selected_muon_charge[1] + Selected_muon_charge[2]")
-               .Define("Selected_muon_number", "int(Selected_muon_pt.size())")
-               .Define("Selected_muon_deltaeta_01", "abs(Selected_muon_eta[0] - Selected_muon_eta[1])")
-               .Define("Selected_muon_deltaeta_02", "abs(Selected_muon_eta[0] - Selected_muon_eta[2])")
-               .Define("Selected_muon_deltaeta_12", "abs(Selected_muon_eta[1] - Selected_muon_eta[2])")
-               .Define("Selected_muon_deltaphi_01", "abs(ROOT::VecOps::DeltaPhi(Selected_muon_phi[0], Selected_muon_phi[1]))")
-               .Define("Selected_muon_deltaphi_02", "abs(ROOT::VecOps::DeltaPhi(Selected_muon_phi[0], Selected_muon_phi[2]))")
-               .Define("Selected_muon_deltaphi_12", "abs(ROOT::VecOps::DeltaPhi(Selected_muon_phi[1], Selected_muon_phi[2]))")
-               .Define("dR01", "ROOT::VecOps::DeltaR(Selected_muon_eta[0], Selected_muon_eta[1], Selected_muon_phi[0], Selected_muon_phi[1])")
-               .Define("dR02", "ROOT::VecOps::DeltaR(Selected_muon_eta[0], Selected_muon_eta[2], Selected_muon_phi[0], Selected_muon_phi[2])")
-               .Define("dR12", "ROOT::VecOps::DeltaR(Selected_muon_eta[1], Selected_muon_eta[2], Selected_muon_phi[1], Selected_muon_phi[2])")
-               .Define("Selected_muon_deltaR_min", "min(min(dR01, dR02), dR12)")
-               .Define("a01", "(Selected_muon_charge[0]*Selected_muon_charge[1] + 1) / 2")
-               .Define("a02", "(Selected_muon_charge[0]*Selected_muon_charge[2] + 1) / 2")
-               .Define("a12", "(Selected_muon_charge[1]*Selected_muon_charge[2] + 1) / 2")
-               .Define("Selected_muon_deltaR_min_neutral", "min(dR01*a12 + dR02*a01 + dR12*a02, dR02*a12 + dR12*a01 + dR01*a02)")
-               //.Define("Selected_muon_deltaPhi_min_neutral", "min()")
-               //.Define("Selected_muon_miniPFRelIso_all", "Muon_miniPFRelIso_all[goodMuons]")
-               //.Define("Selected_muon_miniPFRelIso_chg", "Muon_miniPFRelIso_chg[goodMuons]")
-               //.Define("Selected_muon_pfRelIso03_all", "Muon_pfRelIso03_all[goodMuons]")
-               //.Define("Selected_muon_pfRelIso03_chg", "Muon_pfRelIso03_chg[goodMuons]")
-               //.Define("Selected_muon_pfRelIso04_all", "Muon_pfRelIso04_all[goodMuons]")
-               .Define("Selected_muon_genPartIdx", "Muon_genPartIdx[goodMuons]")
-               .Define("Selected_muon_genPartFlav", "Muon_genPartFlav[goodMuons]")
-               .Define("Selected_muon_pdgId", "Muon_pdgId[goodMuons]")
-               .Define("Selected_muon_idx", ::good_idx, {"goodMuons"})
-               .Define("Muon_pair_0_orderby_pt_muon_0", "0")
-               .Define("Muon_pair_0_orderby_pt_muon_1", "2-1*abs(Muon_charge[0]-Muon_charge[1])/2")
-               .Define("Muon_pair_1_orderby_pt_muon_0", "1*abs(Muon_charge[1]-Muon_charge[2])/2")
-               .Define("Muon_pair_1_orderby_pt_muon_1", "2");
+               .Define("sel_mu_pt", "Muon_pt[goodMuons]")
+               .Define("sel_mu_leading_pt", "sel_mu_pt[0]")
+               .Define("sel_mu_subleading_pt", "sel_mu_pt[1]")
+               .Define("sel_mu_subsubleading_pt", "sel_mu_pt[2]")
+               .Define("sel_mu_sum_two_muons_pt", "sel_mu_pt[0] + sel_mu_pt[1]")
+               .Define("sel_mu_sum_all_muons_pt", "Sum(sel_mu_pt)")
+               .Define("sel_mu_eta", "Muon_eta[goodMuons]")
+               .Define("sel_mu_phi", "Muon_phi[goodMuons]")
+               .Define("sel_mu_mass", "Muon_mass[goodMuons]")
+               .Define("sel_mu_charge", "Muon_charge[goodMuons]")
+               .Define("sel_mu_charge_sum", "sel_mu_charge[0] + sel_mu_charge[1] + sel_mu_charge[2]")
+               .Define("sel_mu_number", "int(sel_mu_pt.size())")
+               .Define("sel_mu_deltaeta_01", "abs(sel_mu_eta[0] - sel_mu_eta[1])")
+               .Define("sel_mu_deltaeta_02", "abs(sel_mu_eta[0] - sel_mu_eta[2])")
+               .Define("sel_mu_deltaeta_12", "abs(sel_mu_eta[1] - sel_mu_eta[2])")
+               .Define("sel_mu_deltaphi_01", "abs(ROOT::VecOps::DeltaPhi(sel_mu_phi[0], sel_mu_phi[1]))")
+               .Define("sel_mu_deltaphi_02", "abs(ROOT::VecOps::DeltaPhi(sel_mu_phi[0], sel_mu_phi[2]))")
+               .Define("sel_mu_deltaphi_12", "abs(ROOT::VecOps::DeltaPhi(sel_mu_phi[1], sel_mu_phi[2]))")
+               .Define("sel_mu_dr_01", "ROOT::VecOps::DeltaR(sel_mu_eta[0], sel_mu_eta[1], sel_mu_phi[0], sel_mu_phi[1])")
+               .Define("sel_mu_dr_02", "ROOT::VecOps::DeltaR(sel_mu_eta[0], sel_mu_eta[2], sel_mu_phi[0], sel_mu_phi[2])")
+               .Define("sel_mu_dr_12", "ROOT::VecOps::DeltaR(sel_mu_eta[1], sel_mu_eta[2], sel_mu_phi[1], sel_mu_phi[2])")
+               .Define("sel_mu_dr_min", "min(min(sel_mu_dr_01, sel_mu_dr_02), sel_mu_dr_12)")
+               .Define("mu_01", "(sel_mu_charge[0]*sel_mu_charge[1] + 1) / 2")
+               .Define("mu_02", "(sel_mu_charge[0]*sel_mu_charge[2] + 1) / 2")
+               .Define("mu_12", "(sel_mu_charge[1]*sel_mu_charge[2] + 1) / 2")
+               .Define("sel_mu_dr_min_neutral", "min(sel_mu_dr_01*mu_12 + sel_mu_dr_02*mu_01 + sel_mu_dr_12*mu_02, sel_mu_dr_02*mu_12 + sel_mu_dr_12*mu_01 + sel_mu_dr_01*mu_02)")
+               .Define("sel_mu_genPartIdx", "Muon_genPartIdx[goodMuons]")
+               .Define("sel_mu_genPartFlav", "Muon_genPartFlav[goodMuons]")
+               .Define("sel_mu_pdgId", "Muon_pdgId[goodMuons]")
+               //.Define("sel_mu_idx", ::good_idx, {"goodMuons"}) // TODO: vectorize
+               .Define("sel_mu_idx", "ROOT::VecOps::Nonzero(goodMuons)");
 
     // Generate muon 4-vectors
-    _rlm = _rlm.Define("muon4vecs", ::generate_4vec, {"Selected_muon_pt",
-                                                      "Selected_muon_eta",
-                                                      "Selected_muon_phi",
-                                                      "Selected_muon_mass"})
-               .Define("Muon_pair_0_vectsum", "muon4vecs[Muon_pair_0_orderby_pt_muon_0] + muon4vecs[Muon_pair_0_orderby_pt_muon_1]")
-               .Define("Muon_pair_1_vectsum", "muon4vecs[Muon_pair_1_orderby_pt_muon_0] + muon4vecs[Muon_pair_1_orderby_pt_muon_1]")
-               .Define("Muon_pair_0_mass", "Muon_pair_0_vectsum.M()")
-               .Define("Muon_pair_1_mass", "Muon_pair_1_vectsum.M()");
+    /*_rlm = _rlm.Define("muon4vecs", ::generate_4vec, {"sel_mu_pt",
+                                                      "sel_mu_eta",
+                                                      "sel_mu_phi",
+                                                      "sel_mu_mass"})
+               .Define("dimu_0_orderby_pt_mu_0", "0")
+               .Define("dimu_0_orderby_pt_mu_1", "2-1*abs(Muon_charge[0]-Muon_charge[1])/2")
+               .Define("dimu_1_orderby_pt_mu_0", "1*abs(Muon_charge[1]-Muon_charge[2])/2")
+               .Define("dimu_1_orderby_pt_mu_1", "2")
+               .Define("dimu_0_orderby_pt_vectsum", "muon4vecs[dimu_0_orderby_pt_mu_0] + muon4vecs[dimu_0_orderby_pt_mu_1]")
+               .Define("dimu_1_orderby_pt_vectsum", "muon4vecs[dimu_1_orderby_pt_mu_0] + muon4vecs[dimu_1_orderby_pt_mu_1]")
+               .Define("dimu_0_orderby_pt_mass", "dimu_0_orderby_pt_vectsum.M()")
+               .Define("dimu_1_orderby_pt_mass", "dimu_1_orderby_pt_vectsum.M()");*/
 
     //_rlm = _rlm.Define("Vectorial_sum_three_muons", "muon4vecs[0] + muon4vecs[1] + muon4vecs[2]")
     //           .Define("Vectorial_sum_three_muons_mass", "Vectorial_sum_three_muons.M()");
                
-    //_rlm = _rlm.Define("dimuon_candidates", ::dimuon, {"muon4vecs", "Selected_muon_charge"});
-    _rlm = _rlm.Define("dimuon", ::nearest, {"Selected_muon_eta", "Selected_muon_eta", "Selected_muon_phi", "Selected_muon_phi", "Selected_muon_charge", "Selected_muon_charge"})
-               .Define("dimuon_deltaR", "ROOT::VecOps::DeltaR(Selected_muon_eta[dimuon[0]], Selected_muon_eta[dimuon[1]], Selected_muon_phi[dimuon[0]], Selected_muon_phi[dimuon[1]])")
-               .Define("DeltaPhi_dimuon", "abs(ROOT::VecOps::DeltaPhi(Selected_muon_phi[dimuon[0]], Selected_muon_phi[dimuon[1]]))")
-               .Define("dimuon_0_vectsum", "muon4vecs[dimuon[0]] + muon4vecs[dimuon[1]]")
-               .Define("dimuon_1_vectsum", "muon4vecs[dimuon[2]] + muon4vecs[dimuon[3]]")
-               .Define("dimuon_0_mass", "dimuon_0_vectsum.M()")
-               .Define("dimuon_1_mass", "dimuon_1_vectsum.M()");
+    //_rlm = _rlm.Define("dimuon_candidates", ::dimuon, {"muon4vecs", "sel_mu_charge"});
+    /*_rlm = _rlm.Define("dimu_orderby_dr", ::nearest, {"sel_mu_eta", "sel_mu_eta", "sel_mu_phi", "sel_mu_phi", "sel_mu_charge", "sel_mu_charge"}) // TODO: vectorize
+               .Define("dimu_orderby_dr_DeltaR", "ROOT::VecOps::DeltaR(sel_mu_eta[dimu_orderby_dr[0]], sel_mu_eta[dimu_orderby_dr[1]], sel_mu_phi[dimu_orderby_dr[0]], sel_mu_phi[dimu_orderby_dr[1]])")
+               .Define("dimu_orderby_dr_DeltaPhi", "abs(ROOT::VecOps::DeltaPhi(sel_mu_phi[dimu_orderby_dr[0]], sel_mu_phi[dimu_orderby_dr[1]]))")
+               .Define("dimu_0_orderby_dr_vectsum", "muon4vecs[dimu_orderby_dr[0]] + muon4vecs[dimu_orderby_dr[1]]")
+               .Define("dimu_1_orderby_dr_vectsum", "muon4vecs[dimu_orderby_dr[2]] + muon4vecs[dimu_orderby_dr[3]]")
+               .Define("dimu_0_orderby_dr_mass", "dimu_0_orderby_dr_vectsum.M()")
+               .Define("dimu_1_orderby_dr_mass", "dimu_1_orderby_dr_vectsum.M()");*/
+
+    /*_rlm = _rlm.Define("dimu", "sel_mu_idx.size() >= 2 && ROOT::VecOps::Combinations(sel_mu_idx, 2) || [[], []]")
+               .Define("dimu_opp_charge_0", "dimu[0][Muon_charge[dimu[0]] != Muon_charge[dimu[1]]]")
+               .Define("dimu_opp_charge_1", "dimu[1][Muon_charge[dimu[0]] != Muon_charge[dimu[1]]]");*/
+               //.Define("dimu_DeltaR", "ROOT::VecOps::DeltaR(sel_mu_eta[dimu_opp_charge_0], sel_mu_eta[dimu_opp_charge_1], sel_mu_phi[dimu_opp_charge_0], sel_mu_phi[dimu_opp_charge_1])")
+               //.Define("dimu_opp_charge_dr_0", "ROOT::VecOps::Take(dimu_opp_charge_0, ROOT::VecOps::Argsort(dimu_DeltaR))")
+               //.Define("dimu_opp_charge_dr_1", "ROOT::VecOps::Take(dimu_opp_charge_1, ROOT::VecOps::Argsort(dimu_DeltaR))");
 
     /// https://twiki.cern.ch/twiki/bin/view/Main/PdgId
     /// https://pdg.lbl.gov/2019/reviews/rpp2018-rev-monte-carlo-numbering.pdf
     /// @brief
     /// @details
-    /// @param &pdgId            Selected_muon_pdgId
+    /// @param &pdgId            sel_mu_pdgId
     ///                          Particle Data Group identification number of
     ///                          the (3?) selected muons
     /// https://cms-nanoaod-integration.web.cern.ch/integration/master-106X/mc102X_doc.html#muon
@@ -246,7 +221,7 @@ void TopHiggsTrileptonAnalyser::selectMuons()
     ///                          Particle Data Group identification number of
     ///                          the generator particles
     /// https://cms-nanoaod-integration.web.cern.ch/integration/master-106X/mc102X_doc.html#GenPart
-    /// @param &genPartIdx       Selected_muon_genPartIdx
+    /// @param &genPartIdx       sel_mu_genPartIdx
     /// @param &genPartMotherIdx GenPart_genPartIdxMother
     /// https://cms-nanoaod-integration.web.cern.ch/integration/master-106X/mc102X_doc.html#GenPart
     /// @return areFromW         A boolean vector specifying whether selected
@@ -340,37 +315,88 @@ void TopHiggsTrileptonAnalyser::selectMuons()
     };
 
     /*
-    _rlm = _rlm.Define("sel_muongenW", isMuonFromW, {"Selected_muon_pdgId",
+    _rlm = _rlm.Define("sel_muongenW", isMuonFromW, {"sel_mu_pdgId",
                                                      "GenPart_pdgId",
-                                                     "Selected_muon_genPartIdx",
+                                                     "sel_mu_genPartIdx",
                                                      "GenPart_genPartIdxMother"})
-               .Define("MuonFromW_pt", "Selected_muon_pt[sel_muongenW]")
-               .Define("MuonFromW_eta", "Selected_muon_eta[sel_muongenW]")
-               .Define("MuonFromW_phi", "Selected_muon_phi[sel_muongenW]")
-               .Define("MuonFromW_mass", "Selected_muon_mass[sel_muongenW]")
-               .Define("MuonFromW_charge", "Selected_muon_charge[sel_muongenW]")
+               .Define("MuonFromW_pt", "sel_mu_pt[sel_muongenW]")
+               .Define("MuonFromW_eta", "sel_mu_eta[sel_muongenW]")
+               .Define("MuonFromW_phi", "sel_mu_phi[sel_muongenW]")
+               .Define("MuonFromW_mass", "sel_mu_mass[sel_muongenW]")
+               .Define("MuonFromW_charge", "sel_mu_charge[sel_muongenW]")
                .Define("MuonFromW_charge_sum", "MuonFromW_charge[0] + MuonFromW_charge[1] + MuonFromW_charge[2]")
                .Define("MuonFromW_number", "int(MuonFromW_pt.size())")
                .Define("MuonFromW_deltaeta", "abs(MuonFromW_eta[1] - MuonFromW_eta[0])")
                .Define("MuonFromW_deltaphi", "abs(ROOT::VecOps::DeltaPhi(MuonFromW_phi[0], MuonFromW_phi[1]))")
                .Define("MuonFromW_deltaR", "ROOT::VecOps::DeltaR(MuonFromW_eta[0], MuonFromW_eta[1], MuonFromW_phi[0], MuonFromW_phi[1])")
-               .Define("MuonFromW_miniPFRelIso_all", "Selected_muon_miniPFRelIso_all[sel_muongenW]")
-               .Define("MuonFromW_miniPFRelIso_chg", "Selected_muon_miniPFRelIso_chg[sel_muongenW]")
-               .Define("MuonFromW_pfRelIso03_all", "Selected_muon_pfRelIso03_all[sel_muongenW]")
-               .Define("MuonFromW_pfRelIso03_chg", "Selected_muon_pfRelIso03_chg[sel_muongenW]")
-               .Define("MuonFromW_pfRelIso04_all", "Selected_muon_pfRelIso04_all[sel_muongenW]")
-               .Define("MuonFromW_miniPFRelIso_all_divided_pt", "Selected_muon_miniPFRelIso_all[sel_muongenW]/MuonFromW_pt")
-               .Define("MuonFromW_miniPFRelIso_chg_divided_pt", "Selected_muon_miniPFRelIso_chg[sel_muongenW]/MuonFromW_pt")
-               .Define("MuonFromW_pfRelIso03_all_divided_pt", "Selected_muon_pfRelIso03_all[sel_muongenW]/MuonFromW_pt")
-               .Define("MuonFromW_pfRelIso03_chg_divided_pt", "Selected_muon_pfRelIso03_chg[sel_muongenW]/MuonFromW_pt")
-               .Define("MuonFromW_pfRelIso04_all_divided_pt", "Selected_muon_pfRelIso04_all[sel_muongenW]/MuonFromW_pt")
-               .Define("MuonFromW_genPartIdx", "Selected_muon_genPartIdx[sel_muongenW]")
-               .Define("MuonFromW_genPartFlav", "Selected_muon_genPartFlav[sel_muongenW]")
-               .Define("MuonFromW_pdgId", "Selected_muon_pdgId[sel_muongenW]")
+               .Define("MuonFromW_miniPFRelIso_all", "sel_mu_miniPFRelIso_all[sel_muongenW]")
+               .Define("MuonFromW_miniPFRelIso_chg", "sel_mu_miniPFRelIso_chg[sel_muongenW]")
+               .Define("MuonFromW_pfRelIso03_all", "sel_mu_pfRelIso03_all[sel_muongenW]")
+               .Define("MuonFromW_pfRelIso03_chg", "sel_mu_pfRelIso03_chg[sel_muongenW]")
+               .Define("MuonFromW_pfRelIso04_all", "sel_mu_pfRelIso04_all[sel_muongenW]")
+               .Define("MuonFromW_miniPFRelIso_all_divided_pt", "sel_mu_miniPFRelIso_all[sel_muongenW]/MuonFromW_pt")
+               .Define("MuonFromW_miniPFRelIso_chg_divided_pt", "sel_mu_miniPFRelIso_chg[sel_muongenW]/MuonFromW_pt")
+               .Define("MuonFromW_pfRelIso03_all_divided_pt", "sel_mu_pfRelIso03_all[sel_muongenW]/MuonFromW_pt")
+               .Define("MuonFromW_pfRelIso03_chg_divided_pt", "sel_mu_pfRelIso03_chg[sel_muongenW]/MuonFromW_pt")
+               .Define("MuonFromW_pfRelIso04_all_divided_pt", "sel_mu_pfRelIso04_all[sel_muongenW]/MuonFromW_pt")
+               .Define("MuonFromW_genPartIdx", "sel_mu_genPartIdx[sel_muongenW]")
+               .Define("MuonFromW_genPartFlav", "sel_mu_genPartFlav[sel_muongenW]")
+               .Define("MuonFromW_pdgId", "sel_mu_pdgId[sel_muongenW]")
                .Define("p4_MuonFromW", ::generate_4vec, {"MuonFromW_pt",
                                                          "MuonFromW_eta",
                                                          "MuonFromW_phi",
                                                          "MuonFromW_mass"});
+    */
+}
+
+void TopHiggsTrileptonAnalyser::selectLeptons()
+{
+    printDebugInfo(__LINE__, __FUNCTION__);
+
+    _rlm = _rlm.Define("sel_el_mu_pt",                "ROOT::VecOps::Concatenate(sel_el_pt, sel_mu_pt)")
+               .Define("sel_lepton_argsort_pt",       "ROOT::VecOps::Reverse(ROOT::VecOps::Argsort(sel_el_mu_pt))")
+               .Define("sel_lepton_pt",               "ROOT::VecOps::Take(sel_el_mu_pt, sel_lepton_argsort_pt)")
+               .Define("sel_lepton_leading_pt",       "sel_lepton_pt[0]")
+               .Define("sel_lepton_subleading_pt",    "sel_lepton_pt[1]")
+               .Define("sel_lepton_subsubleading_pt", "sel_lepton_pt[2]")
+               .Define("sel_lepton_sum_2_lepton_pt",  "sel_lepton_pt[0] + sel_lepton_pt[1]")
+               .Define("sel_lepton_sum_3_lepton_pt",  "sel_lepton_pt[0] + sel_lepton_pt[1] + sel_lepton_pt[2]")
+               .Define("sel_lepton_eta",              "ROOT::VecOps::Take(ROOT::VecOps::Concatenate(sel_el_eta,         sel_mu_eta),         sel_lepton_argsort_pt)")
+               .Define("sel_lepton_phi",              "ROOT::VecOps::Take(ROOT::VecOps::Concatenate(sel_el_phi,         sel_mu_phi),         sel_lepton_argsort_pt)")
+               .Define("sel_lepton_mass",             "ROOT::VecOps::Take(ROOT::VecOps::Concatenate(sel_el_mass,        sel_mu_mass),        sel_lepton_argsort_pt)")
+               .Define("sel_lepton_charge",           "ROOT::VecOps::Take(ROOT::VecOps::Concatenate(sel_el_charge,      sel_mu_charge),      sel_lepton_argsort_pt)")
+               .Define("sel_lepton_genPartIdx",       "ROOT::VecOps::Take(ROOT::VecOps::Concatenate(sel_el_genPartIdx,  sel_mu_genPartIdx),  sel_lepton_argsort_pt)")
+               .Define("sel_lepton_genPartFlav",      "ROOT::VecOps::Take(ROOT::VecOps::Concatenate(sel_el_genPartFlav, sel_mu_genPartFlav), sel_lepton_argsort_pt)")
+               .Define("sel_lepton_pdgId",            "ROOT::VecOps::Take(ROOT::VecOps::Concatenate(sel_el_pdgId,       sel_mu_pdgId),       sel_lepton_argsort_pt)")
+               .Define("sel_lepton_charge_sum",       "sel_lepton_charge[0] + sel_lepton_charge[1] + sel_lepton_charge[2]")
+               .Define("sel_lepton_number",           "int(sel_lepton_pt.size())");
+
+    /*
+    _rlm = _rlm.Define("lepton4vecs", ::generate_4vec, {"sel_lepton_pt",
+                                                        "sel_lepton_eta",
+                                                        "sel_lepton_phi",
+                                                        "sel_lepton_mass"})
+               .Define("ll_0_orderby_pt_lepton_0", "0")
+               .Define("ll_0_orderby_pt_lepton_1", "2-1*abs(sel_lepton_charge[0]-sel_lepton_charge[1])/2")
+               .Define("ll_1_orderby_pt_lepton_0", "1*abs(sel_lepton_charge[1]-sel_lepton_charge[2])/2")
+               .Define("ll_1_orderby_pt_lepton_1", "2")
+               .Define("ll_0_orderby_pt_vectsum", "lepton4vecs[ll_0_orderby_pt_lepton_0] + lepton4vecs[ll_0_orderby_pt_lepton_1]")
+               .Define("ll_1_orderby_pt_vectsum", "lepton4vecs[ll_1_orderby_pt_lepton_0] + lepton4vecs[ll_1_orderby_pt_lepton_1]")
+               .Define("ll_0_orderby_pt_mass", "ll_0_orderby_pt_vectsum.M()")
+               .Define("ll_1_orderby_pt_mass", "ll_1_orderby_pt_vectsum.M()");
+
+    _rlm = _rlm.Define("ll_orderby_dr", ::nearest, {"sel_lepton_eta",
+                                                    "sel_lepton_eta",
+                                                    "sel_lepton_phi",
+                                                    "sel_lepton_phi",
+                                                    "sel_lepton_charge",
+                                                    "sel_lepton_charge"})
+               .Define("ll_orderby_dr_DeltaR", "ROOT::VecOps::DeltaR(sel_lepton_eta[ll_orderby_dr[0]], sel_lepton_eta[ll_orderby_dr[1]], sel_lepton_phi[ll_orderby_dr[0]], sel_lepton_phi[ll_orderby_dr[1]])")
+               .Define("ll_orderby_dr_DeltaPhi", "abs(ROOT::VecOps::DeltaPhi(sel_lepton_phi[ll_orderby_dr[0]], sel_lepton_phi[ll_orderby_dr[1]]))")
+               .Define("ll_0_orderby_dr_vectsum", "lepton4vecs[ll_orderby_dr[0]] + lepton4vecs[ll_orderby_dr[1]]")
+               .Define("ll_1_orderby_dr_vectsum", "lepton4vecs[ll_orderby_dr[2]] + lepton4vecs[ll_orderby_dr[3]]")
+               .Define("ll_0_orderby_dr_mass", "ll_0_orderby_dr_vectsum.M()")
+               .Define("ll_1_orderby_dr_mass", "ll_1_orderby_dr_vectsum.M()");
     */
 }
 
@@ -386,25 +412,25 @@ void TopHiggsTrileptonAnalyser::selectJets()
     
     // Define good jets
     _rlm = _rlm.Define("goodJets", "Jet_pt > 30 &&  abs(Jet_eta) < 2.5 && Jet_jetId >= 6") // && Jet_btagDeepB > 0.1208")
-               .Define("Selected_jet_pt", "Jet_pt[goodJets]")
-               .Define("Selected_jet_sum_all_jets_pt", "Sum(Selected_jet_pt)")
-               .Define("Selected_jet_eta", "Jet_eta[goodJets]")
-               .Define("Selected_jet_phi", "Jet_phi[goodJets]")
-               .Define("Selected_jet_mass", "Jet_mass[goodJets]")
-               .Define("Selected_jet_number", "int(Selected_jet_pt.size())");
+               .Define("sel_jet_pt", "Jet_pt[goodJets]")
+               .Define("sel_jet_sum_all_jets_pt", "Sum(sel_jet_pt)")
+               .Define("sel_jet_eta", "Jet_eta[goodJets]")
+               .Define("sel_jet_phi", "Jet_phi[goodJets]")
+               .Define("sel_jet_mass", "Jet_mass[goodJets]")
+               .Define("sel_jet_number", "int(sel_jet_pt.size())");
 
     _rlm = _rlm.Define("goodJets_btag", "goodJets && Jet_btagDeepFlavB > 0.049")
-               .Define("Selected_bjet_pt", "Jet_pt[goodJets_btag]")
-               .Define("Selected_bjet_sum_all_jets_pt", "Sum(Selected_bjet_pt)")
-               .Define("Selected_bjet_eta", "Jet_eta[goodJets_btag]")
-               .Define("Selected_bjet_phi", "Jet_phi[goodJets_btag]")
-               .Define("Selected_bjet_mass", "Jet_mass[goodJets_btag]")
-               .Define("Selected_bjet_number", "int(Selected_bjet_pt.size())");
+               .Define("sel_bjet_pt", "Jet_pt[goodJets_btag]")
+               .Define("sel_bjet_sum_all_jets_pt", "Sum(sel_bjet_pt)")
+               .Define("sel_bjet_eta", "Jet_eta[goodJets_btag]")
+               .Define("sel_bjet_phi", "Jet_phi[goodJets_btag]")
+               .Define("sel_bjet_mass", "Jet_mass[goodJets_btag]")
+               .Define("sel_bjet_number", "int(sel_bjet_pt.size())");
 
-    _rlm = _rlm.Define("jet4vecs", ::generate_4vec, {"Selected_bjet_pt",
-                                                      "Selected_bjet_eta",
-                                                      "Selected_bjet_phi",
-                                                      "Selected_bjet_mass"});
+    _rlm = _rlm.Define("jet4vecs", ::generate_4vec, {"sel_bjet_pt",
+                                                      "sel_bjet_eta",
+                                                      "sel_bjet_phi",
+                                                      "sel_bjet_mass"});
 }
 
 /// @brief Check overlaps
@@ -472,7 +498,7 @@ void TopHiggsTrileptonAnalyser::selectJets()
         }
         return weight;
     };
-    //_rlm = _rlm.Define("evWeight_muonSF", muonSF, {"Selected_muon_pt", "Selected_muon_eta"});
+    //_rlm = _rlm.Define("evWeight_muonSF", muonSF, {"sel_mu_pt", "sel_mu_eta"});
 }
 */
 
@@ -483,7 +509,7 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
     printDebugInfo(__LINE__, __FUNCTION__);
   
     // Define St
-    addVar({"St", "Sum(Selected_electron_pt) + Sum(Selected_muon_pt) + Sum(Selected_jet_pt)"});
+    addVar({"St", "Sum(sel_el_pt) + Sum(sel_mu_pt) + Sum(sel_jet_pt)"});
     
     //addVar({"dimuon_deltaphi", "abs(dimuon_candidates[0])", ""});
     //addVar({"dimuon_deltaR", "dimuon_candidates[1]", ""});
@@ -498,79 +524,100 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
     addVartoStore("evWeight.*");
 
     // Electrons
-    addVartoStore("Selected_electron_pt");
-    addVartoStore("Selected_electron_sum_all_electrons_pt");
-    addVartoStore("Selected_electron_eta");
-    addVartoStore("Selected_electron_phi");
-    addVartoStore("Selected_electron_mass");
-    addVartoStore("Selected_electron_number");
+    addVartoStore("sel_el_pt");
+    addVartoStore("sel_el_sum_all_electrons_pt");
+    addVartoStore("sel_el_eta");
+    addVartoStore("sel_el_phi");
+    addVartoStore("sel_el_mass");
+    addVartoStore("sel_el_number");
     addVartoStore("elec4vecs");
     
     // Muons
-    addVartoStore("goodMuons");
-    addVartoStore("Selected_muon_pt");
-    addVartoStore("Selected_muon_leading_pt");
-    addVartoStore("Selected_muon_subleading_pt");
-    addVartoStore("Selected_muon_subsubleading_pt");
-    addVartoStore("Selected_muon_sum_two_muons_pt");
-    addVartoStore("Selected_muon_sum_all_muons_pt");   
-    addVartoStore("Selected_muon_eta");
-    addVartoStore("Selected_muon_phi");
-    addVartoStore("Selected_muon_mass");
-    addVartoStore("Selected_muon_charge");
-    addVartoStore("Selected_muon_charge_sum");
-    addVartoStore("Selected_muon_number");
-    addVartoStore("Selected_muon_deltaeta_01");
-    addVartoStore("Selected_muon_deltaeta_02");
-    addVartoStore("Selected_muon_deltaeta_12");
-    addVartoStore("Selected_muon_deltaphi_01");
-    addVartoStore("Selected_muon_deltaphi_02");
-    addVartoStore("Selected_muon_deltaphi_12");
-    addVartoStore("dR01");
-    addVartoStore("dR02");
-    addVartoStore("dR12");
+    /*addVartoStore("goodMuons");
+    addVartoStore("sel_mu_pt");
+    addVartoStore("sel_mu_leading_pt");
+    addVartoStore("sel_mu_subleading_pt");
+    addVartoStore("sel_mu_subsubleading_pt");
+    addVartoStore("sel_mu_sum_two_muons_pt");
+    addVartoStore("sel_mu_sum_all_muons_pt");   
+    addVartoStore("sel_mu_eta");
+    addVartoStore("sel_mu_phi");
+    addVartoStore("sel_mu_mass");
+    addVartoStore("sel_mu_charge");
+    addVartoStore("sel_mu_charge_sum");*/
+    addVartoStore("sel_mu_number");
+    /*addVartoStore("sel_mu_deltaeta_01");
+    addVartoStore("sel_mu_deltaeta_02");
+    addVartoStore("sel_mu_deltaeta_12");
+    addVartoStore("sel_mu_deltaphi_01");
+    addVartoStore("sel_mu_deltaphi_02");
+    addVartoStore("sel_mu_deltaphi_12");
+    addVartoStore("sel_mu_dr01");
+    addVartoStore("sel_mu_dr02");
+    addVartoStore("sel_mu_dr12");
     addVartoStore("a01");
     addVartoStore("a02");
     addVartoStore("a12");
-    addVartoStore("Selected_muon_deltaR_min");
-    addVartoStore("Selected_muon_deltaR_min_neutral");
-    //addVartoStore("Selected_muon_miniPFRelIso_all");
-    //addVartoStore("Selected_muon_miniPFRelIso_chg");
-    //addVartoStore("Selected_muon_pfRelIso03_all");
-    //addVartoStore("Selected_muon_pfRelIso03_chg");
-    //addVartoStore("Selected_muon_pfRelIso04_all");
-    addVartoStore("Selected_muon_genPartIdx");
-    addVartoStore("Selected_muon_genPartFlav");
-    addVartoStore("Selected_muon_pdgId");
-    addVartoStore("Selected_muon_idx");
-    addVartoStore("muon4vecs");
+    addVartoStore("sel_mu_dr_min");
+    addVartoStore("sel_mu_dr_min_neutral");*/
+    //addVartoStore("sel_mu_miniPFRelIso_all");
+    //addVartoStore("sel_mu_miniPFRelIso_chg");
+    //addVartoStore("sel_mu_pfRelIso03_all");
+    //addVartoStore("sel_mu_pfRelIso03_chg");
+    //addVartoStore("sel_mu_pfRelIso04_all");
+    /*addVartoStore("sel_mu_genPartIdx");
+    addVartoStore("sel_mu_genPartFlav");
+    addVartoStore("sel_mu_pdgId");
+    addVartoStore("sel_mu_idx");
+    addVartoStore("muon4vecs");*/
     //addVartoStore("Vectorial_sum_two_muons");
     //addVartoStore("Vectorial_sum_two_muons_mass");
-    addVartoStore("IsFromW");
+    //addVartoStore("IsFromW");
 
-    addVartoStore("dimuon");
-    addVartoStore("dimuon_deltaR");
+    /*addVartoStore("ll_orderby_dr");
+    addVartoStore("ll_orderby_dr_DeltaR");
+    addVartoStore("ll_orderby_dr_DeltaPhi");*/
 
-    _rlm = _rlm.Define("Vectorial_sum_dimuon", "muon4vecs[dimuon[0]] + muon4vecs[dimuon[1]]")
-               .Define("Vectorial_sum_dimuon_mass", "Vectorial_sum_dimuon.M()");
-    addVartoStore("Vectorial_sum_dimuon");
-    addVartoStore("Vectorial_sum_dimuon_mass");
+    // TODO:
+    /*_rlm = _rlm.Define("Vectorial_sum_ll", "lepton4vecs[ll_orderby_dr[0]] + muon4vecs[ll_orderby_dr[1]]")
+               .Define("Vectorial_sum_ll_mass", "Vectorial_sum_ll.M()");
+    addVartoStore("Vectorial_sum_ll");
+    addVartoStore("Vectorial_sum_ll_mass");*/
+    // TODO:
 
-    addVartoStore("DeltaPhi_dimuon");
+/*    addVartoStore("ll_0_orderby_pt_mu_0");
+    addVartoStore("ll_0_orderby_pt_mu_1");
+    addVartoStore("ll_1_orderby_pt_mu_0");
+    addVartoStore("ll_1_orderby_pt_mu_1");
+    addVartoStore("ll_0_orderby_pt_vectsum");
+    addVartoStore("ll_1_orderby_pt_vectsum");
+    addVartoStore("ll_0_orderby_pt_mass");
+    addVartoStore("ll_1_orderby_pt_mass");
 
-    addVartoStore("Muon_pair_0_orderby_pt_muon_0");
-    addVartoStore("Muon_pair_0_orderby_pt_muon_1");
-    addVartoStore("Muon_pair_1_orderby_pt_muon_0");
-    addVartoStore("Muon_pair_1_orderby_pt_muon_1");
-    addVartoStore("Muon_pair_0_vectsum");
-    addVartoStore("Muon_pair_1_vectsum");
-    addVartoStore("Muon_pair_0_mass");
-    addVartoStore("Muon_pair_1_mass");
+    addVartoStore("ll_orderby_dr_DeltaPhi");
+    addVartoStore("ll_orderby_dr_DeltaR");
+    addVartoStore("ll_0_orderby_dr_vectsum");
+    addVartoStore("ll_1_orderby_dr_vectsum");
+    addVartoStore("ll_0_orderby_dr_mass");
+    addVartoStore("ll_1_orderby_dr_mass");*/
 
-    addVartoStore("dimuon_0_vectsum");
-    addVartoStore("dimuon_1_vectsum");
-    addVartoStore("dimuon_0_mass");
-    addVartoStore("dimuon_1_mass");
+    //addVartoStore("dimu_DeltaR");
+
+    addVartoStore("sel_lepton_pt");
+    addVartoStore("sel_lepton_leading_pt");
+    addVartoStore("sel_lepton_subleading_pt");
+    addVartoStore("sel_lepton_subsubleading_pt");
+    addVartoStore("sel_lepton_sum_2_lepton_pt");
+    addVartoStore("sel_lepton_sum_3_lepton_pt");
+    addVartoStore("sel_lepton_eta");
+    addVartoStore("sel_lepton_phi");
+    addVartoStore("sel_lepton_mass");
+    addVartoStore("sel_lepton_charge");
+    addVartoStore("sel_lepton_genPartIdx");
+    addVartoStore("sel_lepton_genPartFlav");
+    addVartoStore("sel_lepton_pdgId");
+    addVartoStore("sel_lepton_charge_sum");
+    addVartoStore("sel_lepton_number");
 
     // Reconstructed muons
     /*
@@ -602,25 +649,25 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
     */
 
     // Jets
-    addVartoStore("Selected_jet_pt");
-    addVartoStore("Selected_jet_sum_all_jets_pt");
-    addVartoStore("Selected_jet_eta");
-    addVartoStore("Selected_jet_phi");
-    addVartoStore("Selected_jet_mass");
-    addVartoStore("Selected_jet_number");
-    addVartoStore("Selected_bjet_pt");
-    addVartoStore("Selected_bjet_sum_all_jets_pt");
-    addVartoStore("Selected_bjet_eta");
-    addVartoStore("Selected_bjet_phi");
-    addVartoStore("Selected_bjet_mass");
-    addVartoStore("Selected_bjet_number");
+    addVartoStore("sel_jet_pt");
+    addVartoStore("sel_jet_sum_all_jets_pt");
+    addVartoStore("sel_jet_eta");
+    addVartoStore("sel_jet_phi");
+    addVartoStore("sel_jet_mass");
+    addVartoStore("sel_jet_number");
+    addVartoStore("sel_bjet_pt");
+    addVartoStore("sel_bjet_sum_all_jets_pt");
+    addVartoStore("sel_bjet_eta");
+    addVartoStore("sel_bjet_phi");
+    addVartoStore("sel_bjet_mass");
+    addVartoStore("sel_bjet_number");
     addVartoStore("jet4vecs");
 
-    _rlm = _rlm.Define("Vectorial_sum_bl", "muon4vecs[3 - dimuon[0] - dimuon[1]] + jet4vecs[0]")
+    /*_rlm = _rlm.Define("Vectorial_sum_bl", "muon4vecs[3 - dimu_orderby_dr[0] - dimu_orderby_dr[1]] + jet4vecs[0]")
                .Define("Vectorial_sum_bl_mass", "Vectorial_sum_bl.M()");
 
     addVartoStore("Vectorial_sum_bl");
-    addVartoStore("Vectorial_sum_bl_mass");
+    addVartoStore("Vectorial_sum_bl_mass");*/
 
     // Others
     addVartoStore("St");
@@ -647,40 +694,53 @@ void TopHiggsTrileptonAnalyser::bookHists()
     
     // Muons
         //add1DHist( {"hgoodelectron1_pt", "good electron1_pt", 18, -2.7, 2.7}, "good_electron1pt", "evWeight", "0");
-    add1DHist({"Number_Muons", "Number of muons;Number of muons;Events", 20, 0.0, 10.0}, "Selected_muon_number", "one", "0");
-    add1DHist({"Pt_Muons", "p_T of muons;p_T;Events", 40, 0.0, 200.0}, "Selected_muon_pt", "one", "");
-    add1DHist({"Leading_Pt_Muons", "p_T of muon 0;p_T of the leading muon;Events", 60, 0.0, 300.0}, "Selected_muon_leading_pt", "one", "");
-    add1DHist({"Subleading_Pt_Muons", "p_T of muon 1;p_T of the subleading muon;Events", 40, 0.0, 200.0}, "Selected_muon_subleading_pt", "one", "");
-    add1DHist({"Subsubleading_Pt_Muons", "p_T of muon 2;p_T of the subsubleading muon;Events", 40, 0.0, 200.0}, "Selected_muon_subsubleading_pt", "one", "");
-    add1DHist({"Sum_Pt_Three_Muons", "Total p_T of the 3 muons;Sum of the p_T of the three muons;Events", 60, 0.0, 400.0}, "Selected_muon_sum_all_muons_pt", "one", "");
-    add1DHist({"Eta_Muons", "Eta of muons;Eta;Events", 100, -3.0, 3.0}, "Selected_muon_eta", "one", "");
-        //add1DHist({"Charge_Muons", "Charge of muon", 50, -2.0, 2.0}, "Selected_muon_charge", "one", "");
-        //add1DHist({"Deltaphi01_Muons", "Delta#phi (leading muon, subleading muon)", 30, 0.0, 4.0}, "Selected_muon_deltaphi_01", "one", "");
-        //add1DHist({"Deltaphi02_Muons", "Delta#phi (leading muon, subsubleading muon)", 30, 0.0, 4.0}, "Selected_muon_deltaphi_02", "one", "");
-        //add1DHist({"Deltaphi12_Muons", "Delta#phi (subleading muon, subsubleading muon)", 30, 0.0, 4.0}, "Selected_muon_deltaphi_12", "one", "");
-        //add1DHist({"DeltaR01_Muons", "DeltaR (muon 0, muon 1);DeltaR between leading and subleading muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_01", "one", "");
-        //add1DHist({"DeltaR02_Muons", "DeltaR (muon 0, muon 2);DeltaR between leading and subsubleading muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_02", "one", "");
-        //add1DHist({"DeltaR12_Muons", "DeltaR (muon 1, muon 2);DeltaR between subleading and subsubleading muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_12", "one", "");
-    add1DHist({"DeltaR_min_Muons", "DeltaR min;Minimum DeltaR between 2 muons;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_min", "one", "");
-    add1DHist({"DeltaR_min_Muons_Opp_Charge", "DeltaR min;Minimum DeltaR between 2 muons of opp. charge;Events", 30, 0.0, 6.0}, "Selected_muon_deltaR_min_neutral", "one", "");
+    add1DHist({"Number_Muons", "Number of muons;Number of muons;Events", 10, 0.0, 5.0}, "sel_mu_number", "one", "0");
+    add1DHist({"Number_Electrons", "Number of electrons;Number of electrons;Events", 10, 0.0, 5.0}, "sel_el_number", "one", "0");
+    add1DHist({"Number_Leptons", "Number of leptons;Number of leptons;Events", 10, 0.0, 5.0}, "sel_lepton_number", "one", "0");
+    add1DHist({"Pt_Muons", "p_T of muons;p_T;Events", 40, 0.0, 200.0}, "sel_mu_pt", "one", "");
+    add1DHist({"Pt_Electrons", "p_T of electrons;p_T;Events", 40, 0.0, 200.0}, "sel_el_pt", "one", "");
+    add1DHist({"Pt_Leptons", "p_T of leptons;p_T;Events", 40, 0.0, 200.0}, "sel_lepton_pt", "one", "");
+    add1DHist({"Leading_Pt_Muons", "p_T of muons;p_T;Events", 40, 0.0, 200.0}, "sel_mu_pt", "one", "");
+    add1DHist({"Leading_Pt_Electrons", "p_T of electrons;p_T;Events", 40, 0.0, 200.0}, "sel_el_pt", "one", "");
+    add1DHist({"Leading_Pt_Leptons", "p_T of leptons;p_T;Events", 40, 0.0, 200.0}, "sel_lepton_pt", "one", "");
+    add1DHist({"Subleading_Pt_Muons", "p_T of muons;p_T;Events", 40, 0.0, 200.0}, "sel_mu_pt", "one", "");
+    add1DHist({"Subleading_Pt_Electrons", "p_T of electrons;p_T;Events", 40, 0.0, 200.0}, "sel_el_pt", "one", "");
+    add1DHist({"Subleading_Pt_Leptons", "p_T of leptons;p_T;Events", 40, 0.0, 200.0}, "sel_lepton_pt", "one", "");
+    add1DHist({"Subsubleading_Pt_Muons", "p_T of muons;p_T;Events", 40, 0.0, 200.0}, "sel_mu_pt", "one", "");
+    add1DHist({"Subsubleading_Pt_Electrons", "p_T of electrons;p_T;Events", 40, 0.0, 200.0}, "sel_el_pt", "one", "");
+    add1DHist({"Subsubleading_Pt_Leptons", "p_T of leptons;p_T;Events", 40, 0.0, 200.0}, "sel_lepton_pt", "one", "");
+    /*add1DHist({"Sum_Pt_Three_Muons", "Total p_T of the 3 muons;Sum of the p_T of the three muons;Events", 80, 0.0, 400.0}, "sel_mu_sum_all_muons_pt", "one", "");
+    add1DHist({"Sum_Pt_Three_Electrons", "Total p_T of the 3 electrons;Sum of the p_T of the three electrons;Events", 80, 0.0, 400.0}, "sel_mu_sum_all_muons_pt", "one", "");
+    add1DHist({"Sum_Pt_Three_Leptons", "Total p_T of the 3 leptons;Sum of the p_T of the three leptons;Events", 80, 0.0, 400.0}, "sel_mu_sum_all_muons_pt", "one", "");*/
+/*add1DHist({"Eta_Muons", "Eta of muons;Eta;Events", 120, -3.0, 3.0}, "sel_mu_eta", "one", "");*//*
+        //add1DHist({"Charge_Muons", "Charge of muon", 50, -2.0, 2.0}, "sel_mu_charge", "one", "");
+        //add1DHist({"Deltaphi01_Muons", "Delta#phi (leading muon, subleading muon)", 30, 0.0, 4.0}, "sel_mu_deltaphi_01", "one", "");
+        //add1DHist({"Deltaphi02_Muons", "Delta#phi (leading muon, subsubleading muon)", 30, 0.0, 4.0}, "sel_mu_deltaphi_02", "one", "");
+        //add1DHist({"Deltaphi12_Muons", "Delta#phi (subleading muon, subsubleading muon)", 30, 0.0, 4.0}, "sel_mu_deltaphi_12", "one", "");
+        //add1DHist({"DeltaR01_Muons", "DeltaR (muon 0, muon 1);DeltaR between leading and subleading muons;Events", 30, 0.0, 6.0}, "sel_mu_deltaR_01", "one", "");
+        //add1DHist({"DeltaR02_Muons", "DeltaR (muon 0, muon 2);DeltaR between leading and subsubleading muons;Events", 30, 0.0, 6.0}, "sel_mu_deltaR_02", "one", "");
+        //add1DHist({"DeltaR12_Muons", "DeltaR (muon 1, muon 2);DeltaR between subleading and subsubleading muons;Events", 30, 0.0, 6.0}, "sel_mu_deltaR_12", "one", "");
+    add1DHist({"DeltaR_min_Muons", "DeltaR min;Minimum DeltaR between 2 muons;Events", 30, 0.0, 6.0}, "sel_mu_dr_min", "one", "");
+    add1DHist({"DeltaR_min_Muons_Opp_Charge", "DeltaR min;Minimum DeltaR between 2 muons of opp. charge;Events", 30, 0.0, 6.0}, "sel_mu_dr_min_neutral", "one", "");
+    //add1DHist({"DeltaR_min_Muons_Opp_Charge_Vect", "DeltaR min;Minimum DeltaR between 2 muons of opp. charge;Events", 30, 0.0, 6.0}, "dimu_DeltaR", "one", "");
     
     add1DHist({"s_T", "s_T;s_T;Events", 20, 0.0, 600.0}, "St", "one", "0");
     add1DHist({"Dimuon_mass", "M(dimuon);Mass of the dimuon;Events", 30, 0.0, 120.0}, "Vectorial_sum_dimuon_mass", "one", "00");
     add1DHist({"bl_mass", "M(bl);Mass of the bl;Events", 30, 0.0, 210.0}, "Vectorial_sum_bl_mass", "one", "000");    
-    add1DHist({"DeltaPhi_dimuon", "DeltaPhi(dimuon);DeltaPhi between the nearest muons;Events", 30, 0.0, 3.3}, "DeltaPhi_dimuon", "one", "00");
+    add1DHist({"DeltaPhi_dimuon", "DeltaPhi(dimuon);DeltaPhi between the nearest muons;Events", 30, 0.0, 3.3}, "dimu_orderby_dr_DeltaPhi", "one", "00");
 
-    add1DHist({"Muon_pair_0_mass", "M(dimuon 0) [pt];M(dimuon 0);Events", 150, 0.0, 300.0}, "Muon_pair_0_mass", "one", "00");
-    add1DHist({"Muon_pair_1_mass", "M(dimuon 1) [pt];M(dimuon 1);Events", 150, 0.0, 300.0}, "Muon_pair_1_mass", "one", "00");
-    add1DHist({"dimuon_0_mass", "M(dimuon 0) [dr];M(dimuon 0);Events", 150, 0.0, 300.0}, "dimuon_0_mass", "one", "00");
-    add1DHist({"dimuon_1_mass", "M(dimuon 1) [dr];M(dimuon 1);Events", 150, 0.0, 300.0}, "dimuon_1_mass", "one", "00");
+    add1DHist({"dimu_pt_0_mass", "M(dimuon 0) [pt];M(dimuon 0);Events", 150, 0.0, 300.0}, "dimu_0_orderby_pt_mass", "one", "00");
+    add1DHist({"dimu_pt_1_mass", "M(dimuon 1) [pt];M(dimuon 1);Events", 150, 0.0, 300.0}, "dimu_1_orderby_pt_mass", "one", "00");
+    add1DHist({"dimu_dr_0_mass", "M(dimuon 0) [dr];M(dimuon 0);Events", 150, 0.0, 300.0}, "dimu_0_orderby_dr_mass", "one", "00");
+    add1DHist({"dimu_dr_1_mass", "M(dimuon 1) [dr];M(dimuon 1);Events", 150, 0.0, 300.0}, "dimu_1_orderby_dr_mass", "one", "00");*/
 
     //add1DHist({"DeltaR_min_Dimuon", "DeltaR min;Minimum DeltaR between 2 muons of opposite charges;Events", 30, 0.0, 6.0}, "dimuon_deltaR", "one", "");
     //add1DHist({"Sum_Mass_Two_Muons", "Invariant mass of the two muons", 20, 0.0, 1.0}, "Vectorial_sum_two_muons_mass", "one", "");
-    //add1DHist({"miniPFRelIso_all_Muons", "miniPFRel_all isolation variable between the 2 muons", 50, 0.0, 10.0}, "Selected_muon_miniPFRelIso_all", "one", "");
-    //add1DHist({"miniPFRelIso_chg_Muons", "miniPFRel_chg isolation variable between the 2 muons", 50, 0.0, 10.0}, "Selected_muon_miniPFRelIso_chg", "one", "");
-    //add1DHist({"pfRelIso03_all_Muons", "pfRelIso03_all isolation variable between the 2 muons", 50, 0.0, 10.0}, "Selected_muon_pfRelIso03_all", "one", "");
-    //add1DHist({"pfRelIso03_chg_Muons", "pfRelIso03_chg isolation variable between the 2 muons", 50, 0.0, 10.0}, "Selected_muon_pfRelIso03_chg", "one", "");
-    //add1DHist({"pfRelIso04_all_Muons", "pfRelIso04_all isolation variable between the 2 muons", 50, 0.0, 10.0}, "Selected_muon_pfRelIso04_all", "one", "");
+    //add1DHist({"miniPFRelIso_all_Muons", "miniPFRel_all isolation variable between the 2 muons", 50, 0.0, 10.0}, "sel_mu_miniPFRelIso_all", "one", "");
+    //add1DHist({"miniPFRelIso_chg_Muons", "miniPFRel_chg isolation variable between the 2 muons", 50, 0.0, 10.0}, "sel_mu_miniPFRelIso_chg", "one", "");
+    //add1DHist({"pfRelIso03_all_Muons", "pfRelIso03_all isolation variable between the 2 muons", 50, 0.0, 10.0}, "sel_mu_pfRelIso03_all", "one", "");
+    //add1DHist({"pfRelIso03_chg_Muons", "pfRelIso03_chg isolation variable between the 2 muons", 50, 0.0, 10.0}, "sel_mu_pfRelIso03_chg", "one", "");
+    //add1DHist({"pfRelIso04_all_Muons", "pfRelIso04_all isolation variable between the 2 muons", 50, 0.0, 10.0}, "sel_mu_pfRelIso04_all", "one", "");
 
     // Reconstructed muons
     /*
@@ -732,6 +792,7 @@ void TopHiggsTrileptonAnalyser::setupObjects(bool isSignal)
 	// Selected objects will be stored in new vectors.
 	selectElectrons();
 	selectMuons();
+    selectLeptons();
 	selectJets();
     selectSignal(isSignal);
 	//removeOverlaps();

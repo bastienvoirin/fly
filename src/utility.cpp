@@ -254,7 +254,7 @@ floats dimuon (FourVectorVec &muons, ints Muon_charge)
 
 ints nearest(floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge1, ints charge2)
 {
-  ints out = {-1, -1};
+  ints out = {-1, -1, -1, -1};
   float mindr = FLT_MAX;
   for (unsigned int i = 0; i < 3; i++)
   {
