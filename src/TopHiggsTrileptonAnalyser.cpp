@@ -77,15 +77,15 @@ void TopHiggsTrileptonAnalyser::defineCuts()
     std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
 
     // Preliminary cut: generator-level signal selection (3 muons from W bosons)
-    addCuts("IsSignal == 0 || IsSignal == 1", "0");// && Sum(IsFromW) >= 3)", "0");
+    addCuts("IsSignal == 0 || (IsSignal == 1 && Sum(IsFromW) >= 3)", "0");
 
     // Basic cuts
-    // 3-lepton final state (T' => t, H^0 => WW, Wb => (lν, lν), (lν, jet))
-    addCuts("sel_lepton_number == 3", "00");// && abs(sel_lepton_charge_sum) == 1
+    //(0)//addCuts("sel_lepton_number == 3 && abs(sel_lepton_charge_sum) == 1", "00"); // 3-lepton final state (T' => t, H^0 => WW, Wb => (lν, lν), (lν, jet))
+    //(1)//addCuts("sel_lepton_number == 3 && sel_mu_number == 3 && abs(sel_lepton_charge_sum) == 1", "00");
 
-    // At least 1 b-tagged jet (t => W, b => lν, jet): relevant for WZ background, not for ttbar
-    //addCuts("sel_bjet_number >= 1", "000");
-    //addCuts("sel_lepton_sum_3_lepton_pt >= 160.0", "0000");
+    addCuts("sel_bjet_number >= 1", "000"); // At least 1 b-tagged jet (t => (W, b) => (lν, jet)): relevant for WZ background, not for ttbar
+    addCuts("sel_lepton_sum_3_lepton_pt >= 160.0", "0000");
+    addCuts("ll_0_orderby_dr_DeltaR <= 1.0", "00000");
 }
 
 /// @brief
@@ -93,11 +93,14 @@ void TopHiggsTrileptonAnalyser::defineCuts()
 void TopHiggsTrileptonAnalyser::selectSignal(bool isSignal)
 {
     std::cout << "################ selectSignal(isSignal = " << isSignal << ") ################" << std::endl;
-    _rlm = _rlm.Define("IsSignal", isSignal ? "1" : "0")
-               .Define("GenMuons","abs(GenPart_pdgId) == 13") // generator-level muons
-               .Define("MotherGenMuons","GenPart_genPartIdxMother[GenMuons]") // mother particles of generator-level muons
-               .Define("MotherPartPdgId", "ROOT::VecOps::Take(GenPart_pdgId, MotherGenMuons)") // PDG Id of the mother particles of generator-level muons
-               .Define("IsFromW","abs(MotherPartPdgId) == 24"); // is the generator-level muon from a W boson?
+
+    _rlm = _rlm.Define("IsSignal",        isSignal ? "1" : "0")
+               .Define("GenMu",           "abs(GenPart_pdgId) == 13") // generator-level muons
+               .Define("GenEl",           "abs(GenPart_pdgId) == 11") // generator-level electrons
+               .Define("MotherGenMu",     "GenPart_genPartIdxMother[GenMu]") // mother particles of generator-level muons
+               .Define("MotherGenEl",     "GenPart_genPartIdxMother[GenEl]") // mother particles of generator-level electrons
+               .Define("MotherPartPdgId", "ROOT::VecOps::Take(GenPart_pdgId, ROOT::VecOps::Concatenate(MotherGenMu, MotherGenEl))") // PDG Id of the mother particles of generator-level muons
+               .Define("IsFromW",         "abs(MotherPartPdgId) == 24"); // is the generator-level muon from a W boson?
 }
 
 /// @brief Find good electrons
@@ -108,7 +111,7 @@ void TopHiggsTrileptonAnalyser::selectElectrons()
     printDebugInfo(__LINE__, __FUNCTION__);
 
     _rlm = _rlm.Define("goodElecID", ElectronID(2));
-    _rlm = _rlm.Define("goodElectrons", "goodElecID && Electron_pt > 20 && abs(Electron_eta) < 2.5 && Electron_sip3d < 3")//&& Electron_mvaTTH > 0.85 && abs(Electron_dxy) < 0.05 && abs(Electron_dz) < 0.1 && Electron_miniPFRelIso_all < 0.4
+    _rlm = _rlm.Define("goodElectrons", "goodElecID && Electron_pt > 20 && abs(Electron_eta) < 2.5 && Electron_sip3d < 3") //&& Electron_mvaTTH > 0.85 && abs(Electron_dxy) < 0.05 && abs(Electron_dz) < 0.1 && Electron_miniPFRelIso_all < 0.4
                .Define("sel_el_pt", "Electron_pt[goodElectrons]")
                .Define("sel_el_leading_pt", "sel_el_pt[0]")
                .Define("sel_el_subleading_pt", "sel_el_pt[1]")
@@ -368,10 +371,9 @@ void TopHiggsTrileptonAnalyser::selectLeptons()
                .Define("sel_lepton_genPartIdx",       "ROOT::VecOps::Take(ROOT::VecOps::Concatenate(sel_el_genPartIdx,  sel_mu_genPartIdx),  sel_lepton_argsort_pt)")
                .Define("sel_lepton_genPartFlav",      "ROOT::VecOps::Take(ROOT::VecOps::Concatenate(sel_el_genPartFlav, sel_mu_genPartFlav), sel_lepton_argsort_pt)")
                .Define("sel_lepton_pdgId",            "ROOT::VecOps::Take(ROOT::VecOps::Concatenate(sel_el_pdgId,       sel_mu_pdgId),       sel_lepton_argsort_pt)")
-               .Define("sel_lepton_charge_sum",       "sel_lepton_charge[0] + sel_lepton_charge[1] + sel_lepton_charge[2]")
+               .Define("sel_lepton_charge_sum",       "Sum(sel_lepton_charge)")
                .Define("sel_lepton_number",           "int(sel_lepton_pt.size())");
 
-    /*
     _rlm = _rlm.Define("lepton4vecs", ::generate_4vec, {"sel_lepton_pt",
                                                         "sel_lepton_eta",
                                                         "sel_lepton_phi",
@@ -380,6 +382,8 @@ void TopHiggsTrileptonAnalyser::selectLeptons()
                .Define("ll_0_orderby_pt_lepton_1", "2-1*abs(sel_lepton_charge[0]-sel_lepton_charge[1])/2")
                .Define("ll_1_orderby_pt_lepton_0", "1*abs(sel_lepton_charge[1]-sel_lepton_charge[2])/2")
                .Define("ll_1_orderby_pt_lepton_1", "2")
+               .Define("ll_0_orderby_pt_DeltaR", "ROOT::VecOps::DeltaR(sel_lepton_eta[ll_0_orderby_pt_lepton_0], sel_lepton_eta[ll_0_orderby_pt_lepton_1], sel_lepton_phi[ll_0_orderby_pt_lepton_0], sel_lepton_phi[ll_0_orderby_pt_lepton_1])")
+               .Define("ll_1_orderby_pt_DeltaR", "ROOT::VecOps::DeltaR(sel_lepton_eta[ll_1_orderby_pt_lepton_0], sel_lepton_eta[ll_1_orderby_pt_lepton_1], sel_lepton_phi[ll_1_orderby_pt_lepton_0], sel_lepton_phi[ll_1_orderby_pt_lepton_1])")
                .Define("ll_0_orderby_pt_vectsum", "lepton4vecs[ll_0_orderby_pt_lepton_0] + lepton4vecs[ll_0_orderby_pt_lepton_1]")
                .Define("ll_1_orderby_pt_vectsum", "lepton4vecs[ll_1_orderby_pt_lepton_0] + lepton4vecs[ll_1_orderby_pt_lepton_1]")
                .Define("ll_0_orderby_pt_mass", "ll_0_orderby_pt_vectsum.M()")
@@ -391,13 +395,14 @@ void TopHiggsTrileptonAnalyser::selectLeptons()
                                                     "sel_lepton_phi",
                                                     "sel_lepton_charge",
                                                     "sel_lepton_charge"})
-               .Define("ll_orderby_dr_DeltaR", "ROOT::VecOps::DeltaR(sel_lepton_eta[ll_orderby_dr[0]], sel_lepton_eta[ll_orderby_dr[1]], sel_lepton_phi[ll_orderby_dr[0]], sel_lepton_phi[ll_orderby_dr[1]])")
-               .Define("ll_orderby_dr_DeltaPhi", "abs(ROOT::VecOps::DeltaPhi(sel_lepton_phi[ll_orderby_dr[0]], sel_lepton_phi[ll_orderby_dr[1]]))")
+               .Define("ll_0_orderby_dr_DeltaR", "ROOT::VecOps::DeltaR(sel_lepton_eta[ll_orderby_dr[0]], sel_lepton_eta[ll_orderby_dr[1]], sel_lepton_phi[ll_orderby_dr[0]], sel_lepton_phi[ll_orderby_dr[1]])")
+               .Define("ll_1_orderby_dr_DeltaR", "ROOT::VecOps::DeltaR(sel_lepton_eta[ll_orderby_dr[2]], sel_lepton_eta[ll_orderby_dr[3]], sel_lepton_phi[ll_orderby_dr[2]], sel_lepton_phi[ll_orderby_dr[3]])")
+               .Define("ll_0_orderby_dr_DeltaPhi", "abs(ROOT::VecOps::DeltaPhi(sel_lepton_phi[ll_orderby_dr[0]], sel_lepton_phi[ll_orderby_dr[1]]))")
+               .Define("ll_1_orderby_dr_DeltaPhi", "abs(ROOT::VecOps::DeltaPhi(sel_lepton_phi[ll_orderby_dr[2]], sel_lepton_phi[ll_orderby_dr[3]]))")
                .Define("ll_0_orderby_dr_vectsum", "lepton4vecs[ll_orderby_dr[0]] + lepton4vecs[ll_orderby_dr[1]]")
                .Define("ll_1_orderby_dr_vectsum", "lepton4vecs[ll_orderby_dr[2]] + lepton4vecs[ll_orderby_dr[3]]")
                .Define("ll_0_orderby_dr_mass", "ll_0_orderby_dr_vectsum.M()")
                .Define("ll_1_orderby_dr_mass", "ll_1_orderby_dr_vectsum.M()");
-    */
 }
 
 /// @brief Select jets
@@ -585,22 +590,6 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
     addVartoStore("Vectorial_sum_ll_mass");*/
     // TODO:
 
-/*    addVartoStore("ll_0_orderby_pt_mu_0");
-    addVartoStore("ll_0_orderby_pt_mu_1");
-    addVartoStore("ll_1_orderby_pt_mu_0");
-    addVartoStore("ll_1_orderby_pt_mu_1");
-    addVartoStore("ll_0_orderby_pt_vectsum");
-    addVartoStore("ll_1_orderby_pt_vectsum");
-    addVartoStore("ll_0_orderby_pt_mass");
-    addVartoStore("ll_1_orderby_pt_mass");
-
-    addVartoStore("ll_orderby_dr_DeltaPhi");
-    addVartoStore("ll_orderby_dr_DeltaR");
-    addVartoStore("ll_0_orderby_dr_vectsum");
-    addVartoStore("ll_1_orderby_dr_vectsum");
-    addVartoStore("ll_0_orderby_dr_mass");
-    addVartoStore("ll_1_orderby_dr_mass");*/
-
     //addVartoStore("dimu_DeltaR");
 
     addVartoStore("sel_lepton_pt");
@@ -618,6 +607,24 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
     addVartoStore("sel_lepton_pdgId");
     addVartoStore("sel_lepton_charge_sum");
     addVartoStore("sel_lepton_number");
+
+    addVartoStore("ll_0_orderby_pt_mu_0");
+    addVartoStore("ll_0_orderby_pt_mu_1");
+    addVartoStore("ll_1_orderby_pt_mu_0");
+    addVartoStore("ll_1_orderby_pt_mu_1");
+    addVartoStore("ll_0_orderby_pt_vectsum");
+    addVartoStore("ll_1_orderby_pt_vectsum");
+    addVartoStore("ll_0_orderby_pt_mass");
+    addVartoStore("ll_1_orderby_pt_mass");
+
+    addVartoStore("ll_0_orderby_dr_DeltaR");
+    addVartoStore("ll_1_orderby_dr_DeltaR");
+    addVartoStore("ll_0_orderby_dr_DeltaPhi");
+    addVartoStore("ll_1_orderby_dr_DeltaPhi");
+    addVartoStore("ll_0_orderby_dr_vectsum");
+    addVartoStore("ll_1_orderby_dr_vectsum");
+    addVartoStore("ll_0_orderby_dr_mass");
+    addVartoStore("ll_1_orderby_dr_mass");
 
     // Reconstructed muons
     /*
@@ -663,11 +670,11 @@ void TopHiggsTrileptonAnalyser::defineMoreVars()
     addVartoStore("sel_bjet_number");
     addVartoStore("jet4vecs");
 
-    /*_rlm = _rlm.Define("Vectorial_sum_bl", "muon4vecs[3 - dimu_orderby_dr[0] - dimu_orderby_dr[1]] + jet4vecs[0]")
+    _rlm = _rlm.Define("Vectorial_sum_bl",      "lepton4vecs[3 - ll_orderby_dr[0] - ll_orderby_dr[1]] + jet4vecs[0]")
                .Define("Vectorial_sum_bl_mass", "Vectorial_sum_bl.M()");
 
     addVartoStore("Vectorial_sum_bl");
-    addVartoStore("Vectorial_sum_bl_mass");*/
+    addVartoStore("Vectorial_sum_bl_mass");
 
     // Others
     addVartoStore("St");
@@ -690,26 +697,35 @@ void TopHiggsTrileptonAnalyser::bookHists()
     printDebugInfo(__LINE__, __FUNCTION__);
 
     
-    add1DHist( {"hnevents", "Number of Events", 2, -0.5, 1.5}, "one", "evWeight", "");
+    add1DHist({"hnevents", "Number of Events", 2, -0.5, 1.5}, "one", "evWeight", "");
     
-    // Muons
-        //add1DHist( {"hgoodelectron1_pt", "good electron1_pt", 18, -2.7, 2.7}, "good_electron1pt", "evWeight", "0");
-    add1DHist({"Number_Muons", "Number of muons;Number of muons;Events", 10, 0.0, 5.0}, "sel_mu_number", "one", "0");
-    add1DHist({"Number_Electrons", "Number of electrons;Number of electrons;Events", 10, 0.0, 5.0}, "sel_el_number", "one", "0");
-    add1DHist({"Number_Leptons", "Number of leptons;Number of leptons;Events", 10, 0.0, 5.0}, "sel_lepton_number", "one", "0");
-    add1DHist({"Pt_Muons", "p_T of muons;p_T;Events", 40, 0.0, 200.0}, "sel_mu_pt", "one", "");
-    add1DHist({"Pt_Electrons", "p_T of electrons;p_T;Events", 40, 0.0, 200.0}, "sel_el_pt", "one", "");
-    add1DHist({"Pt_Leptons", "p_T of leptons;p_T;Events", 40, 0.0, 200.0}, "sel_lepton_pt", "one", "");
-    add1DHist({"Leading_Pt_Muons", "p_T of muons;p_T;Events", 40, 0.0, 200.0}, "sel_mu_pt", "one", "");
-    add1DHist({"Leading_Pt_Electrons", "p_T of electrons;p_T;Events", 40, 0.0, 200.0}, "sel_el_pt", "one", "");
-    add1DHist({"Leading_Pt_Leptons", "p_T of leptons;p_T;Events", 40, 0.0, 200.0}, "sel_lepton_pt", "one", "");
-    add1DHist({"Subleading_Pt_Muons", "p_T of muons;p_T;Events", 40, 0.0, 200.0}, "sel_mu_pt", "one", "");
-    add1DHist({"Subleading_Pt_Electrons", "p_T of electrons;p_T;Events", 40, 0.0, 200.0}, "sel_el_pt", "one", "");
-    add1DHist({"Subleading_Pt_Leptons", "p_T of leptons;p_T;Events", 40, 0.0, 200.0}, "sel_lepton_pt", "one", "");
-    add1DHist({"Subsubleading_Pt_Muons", "p_T of muons;p_T;Events", 40, 0.0, 200.0}, "sel_mu_pt", "one", "");
-    add1DHist({"Subsubleading_Pt_Electrons", "p_T of electrons;p_T;Events", 40, 0.0, 200.0}, "sel_el_pt", "one", "");
-    add1DHist({"Subsubleading_Pt_Leptons", "p_T of leptons;p_T;Events", 40, 0.0, 200.0}, "sel_lepton_pt", "one", "");
-    /*add1DHist({"Sum_Pt_Three_Muons", "Total p_T of the 3 muons;Sum of the p_T of the three muons;Events", 80, 0.0, 400.0}, "sel_mu_sum_all_muons_pt", "one", "");
+    add1DHist({"Number_Muons",                    "Number of muons;Number of muons;Events",            11, -0.25,  5.25}, "sel_mu_number",               "one", "");
+    add1DHist({"Number_Electrons",                "Number of electrons;Number of electrons;Events",    11, -0.25,  5.25}, "sel_el_number",               "one", "");
+    add1DHist({"Number_Leptons",                  "Number of leptons;Number of leptons;Events",        11, -0.25,  5.25}, "sel_lepton_number",           "one", "");
+  //add1DHist({"Pt_Muons",                        "p_T of muons;p_T;Events",                           50,  0.0, 250.0},  "sel_mu_pt",                   "one", "00");
+  //add1DHist({"Pt_Electrons",                    "p_T of electrons;p_T;Events",                       50,  0.0, 250.0},  "sel_el_pt",                   "one", "00");
+    add1DHist({"Pt_Leptons",                      "p_T of leptons;p_T;Events",                         50,  0.0, 250.0},  "sel_lepton_pt",               "one", "00");
+  //add1DHist({"Leading_Pt_Muons",                "p_T of leading muons;p_T;Events",                   50,  0.0, 250.0},  "sel_mu_leading_pt",           "one", "00");
+  //add1DHist({"Leading_Pt_Electrons",            "p_T of leading electrons;p_T;Events",               50,  0.0, 250.0},  "sel_el_leading_pt",           "one", "00");
+    add1DHist({"Leading_Pt_Leptons",              "p_T of leading leptons;p_T;Events",                 50,  0.0, 250.0},  "sel_lepton_leading_pt",       "one", "00");
+  //add1DHist({"Subleading_Pt_Muons",             "p_T of subleading muons;p_T;Events",                50,  0.0, 250.0},  "sel_mu_subleading_pt",        "one", "00");
+  //add1DHist({"Subleading_Pt_Electrons",         "p_T of subleading electrons;p_T;Events",            50,  0.0, 250.0},  "sel_el_subleading_pt",        "one", "00");
+    add1DHist({"Subleading_Pt_Leptons",           "p_T of subleading leptons;p_T;Events",              50,  0.0, 250.0},  "sel_lepton_subleading_pt",    "one", "00");
+  //add1DHist({"Subsubleading_Pt_Muons",          "p_T of subsubleading muons;p_T;Events",             50,  0.0, 250.0},  "sel_mu_subsubleading_pt",     "one", "00");
+  //add1DHist({"Subsubleading_Pt_Electrons",      "p_T of subsubleading electrons;p_T;Events",         50,  0.0, 250.0},  "sel_el_subsubleading_pt",     "one", "00");
+    add1DHist({"Subsubleading_Pt_Leptons",        "p_T of subsubleading leptons;p_T;Events",           50,  0.0, 250.0},  "sel_lepton_subsubleading_pt", "one", "00");
+    add1DHist({"Sum_Pt_3_Leptons",                "Sum of the p_T of the 3 leptons;Total p_T;Events",  50,  0.0, 500.0},  "sel_lepton_sum_3_lepton_pt",  "one", "00");
+    add1DHist({"Mass_Leptons",                    "Mass of leptons;Mass;Events",                       80,  0.0,   2.0},  "sel_lepton_mass",             "one", "");
+    add1DHist({"Charge_Leptons",                  "Charge of leptons;Charge;Events",                    9, -2.25,  2.25}, "sel_lepton_charge",           "one", "");
+    add1DHist({"Charge_3_Leptons",                "Total charge of the 3 leptons;Total charge;Events", 13, -3.25,  3.25}, "sel_lepton_charge_sum",       "one", "00");
+    add1DHist({"St",                              "s_T;s_T;Events",                                    45,  0.0, 900.0},  "St",                          "one", "00");
+    add1DHist({"Mass_bl",                         "Mass of the bl;M(bl);Events",                       30,  0.0, 210.0},  "Vectorial_sum_bl_mass",       "one", "000");
+    add1DHist({"DeltaR_min_dilepton",             "DeltaR min;DeltaR;Events",                          32,  0.0,   3.2},  "ll_0_orderby_dr_DeltaR",      "one", "00");
+    add1DHist({"DeltaR_max_dilepton",             "DeltaR max;DeltaR;Events",                          32,  0.0,   3.2},  "ll_1_orderby_dr_DeltaR",      "one", "00");
+    add1DHist({"DeltaR_dilepton_with_leading",    "DeltaR(dilepton including leading);DeltaR;Events",  32,  0.0,   3.2},  "ll_0_orderby_pt_DeltaR",      "one", "00");
+    add1DHist({"DeltaR_dilepton_without_leading", "DeltaR(dilepton excluding leading);DeltaR;Events",  32,  0.0,   3.2},  "ll_1_orderby_pt_DeltaR",      "one", "00");
+
+/*add1DHist({"Sum_Pt_Three_Muons", "Total p_T of the 3 muons;Sum of the p_T of the three muons;Events", 80, 0.0, 400.0}, "sel_mu_sum_all_muons_pt", "one", "");
     add1DHist({"Sum_Pt_Three_Electrons", "Total p_T of the 3 electrons;Sum of the p_T of the three electrons;Events", 80, 0.0, 400.0}, "sel_mu_sum_all_muons_pt", "one", "");
     add1DHist({"Sum_Pt_Three_Leptons", "Total p_T of the 3 leptons;Sum of the p_T of the three leptons;Events", 80, 0.0, 400.0}, "sel_mu_sum_all_muons_pt", "one", "");*/
 /*add1DHist({"Eta_Muons", "Eta of muons;Eta;Events", 120, -3.0, 3.0}, "sel_mu_eta", "one", "");*//*
@@ -724,9 +740,9 @@ void TopHiggsTrileptonAnalyser::bookHists()
     add1DHist({"DeltaR_min_Muons_Opp_Charge", "DeltaR min;Minimum DeltaR between 2 muons of opp. charge;Events", 30, 0.0, 6.0}, "sel_mu_dr_min_neutral", "one", "");
     //add1DHist({"DeltaR_min_Muons_Opp_Charge_Vect", "DeltaR min;Minimum DeltaR between 2 muons of opp. charge;Events", 30, 0.0, 6.0}, "dimu_DeltaR", "one", "");
     
-    add1DHist({"s_T", "s_T;s_T;Events", 20, 0.0, 600.0}, "St", "one", "0");
+    
     add1DHist({"Dimuon_mass", "M(dimuon);Mass of the dimuon;Events", 30, 0.0, 120.0}, "Vectorial_sum_dimuon_mass", "one", "00");
-    add1DHist({"bl_mass", "M(bl);Mass of the bl;Events", 30, 0.0, 210.0}, "Vectorial_sum_bl_mass", "one", "000");    
+    
     add1DHist({"DeltaPhi_dimuon", "DeltaPhi(dimuon);DeltaPhi between the nearest muons;Events", 30, 0.0, 3.3}, "dimu_orderby_dr_DeltaPhi", "one", "00");
 
     add1DHist({"dimu_pt_0_mass", "M(dimuon 0) [pt];M(dimuon 0);Events", 150, 0.0, 300.0}, "dimu_0_orderby_pt_mass", "one", "00");

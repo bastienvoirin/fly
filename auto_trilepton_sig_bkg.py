@@ -93,6 +93,7 @@ if __name__ == "__main__":
     steps = {}    
     def stepNcut(line):
         search = re.search("//\((\d+)\)//(.*)", line) # find //(N)//addCut("", ""); lines
+        print(search)
         step, instr, full = search.group(1), search.group(2), search.group(0)
         if step in steps:
             steps[step] += [[full, instr]]
