@@ -281,11 +281,22 @@ ints nearest(floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge
   return out;
 }
 
-/*
-// returns the
-ints dimuon (FourVectorVec &muons, ints Muon_charge)
+ints nearestSameFlavor(floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge1, ints charge2, ints pdgId)
 {
-      out = {0, 1*abs(Muon_charge[0]-Muon_charge[1])/2, 2*abs(Muon_charge[0]-Muon_charge[2])/2};
+  ints out = {-1, -1};
+  float mindr = FLT_MAX;
+  for (unsigned int i = 0; i < 3; i++)
+  {
+    for (unsigned int j = i+1; j < 3; j++)
+    {
+      auto dr = ROOT::VecOps::DeltaR(eta1[i], eta2[j], phi1[i], phi2[j]);
+      if (charge1[i] != charge2[j] and pdgId[i] == pdgId[j] and dr < mindr)
+      {
+        out = {i, j};
+        mindr = dr;
+      }
+    }
+  }
+  return out;
 }
-*/
 

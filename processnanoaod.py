@@ -235,8 +235,11 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
     #    , config['btvfname'], config['btvtype'], config['jercfname'], config['jerctag'], config['jercunctag'])
 
     sys.stdout.flush() #to force printout in right order
-    print("isSignal:", procflags["isSignal"])
-    aproc.setupObjects(procflags["isSignal"])
+    #isSignal = map(lambda rootfiletoprocess: "signal" in rootfiletoprocess, rootfilestoprocess)
+    #print("isSignal:", *isSignal)
+    isSignal = all("signal" in rootfiletoprocess for rootfiletoprocess in rootfilestoprocess)
+    print("isSignal:", isSignal)
+    aproc.setupObjects(isSignal)
     #else:
     #    print("Skipping corrections step")
     #time.sleep(3)

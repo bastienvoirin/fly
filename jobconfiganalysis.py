@@ -52,9 +52,7 @@ procflags = {
         # if False then only selected branches which is done in the .cpp file will be saved
         'saveallbranches': False,
         #How many input files?
-        'nrootfiles': 1,
-        # isSignal?
-        'isSignal': True
+        'nrootfiles': 7
 }
 
 # input directory where your input root tree resides
