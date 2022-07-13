@@ -18,11 +18,12 @@ class TopHiggsTrileptonAnalyser: public NanoAODAnalyzerrdframe
             std::string outfilename
         );
         void setupAnalysis();
-        void setupObjects(); 
+        void setupObjects(bool isSignal); 
         void selectElectrons();
         void selectMuons();
+        void selectLeptons();
         void selectJets();
-        void selectSignal();
+        void selectSignal(bool isSignal);
         //void removeOverlaps();
         //void selectFatJets();
         //void calculateEvWeight();

@@ -1,0 +1,10 @@
+*.o
+*.log
+*.pcm
+rootfiles*
+analysed/
+pyrootplots/
+__pycache__/
+src/rootdict*
+src/*.txt
+nanoaodrdataframe
