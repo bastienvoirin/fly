@@ -261,7 +261,7 @@ ints nearest(floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge
     for (unsigned int j = i+1; j < 3; j++)
     {
       auto dr = ROOT::VecOps::DeltaR(eta1[i], eta2[j], phi1[i], phi2[j]);
-      if (dr < mindr and charge1[i] != charge2[j])
+      if (dr < mindr and charge1[i] != charge2[j])//dr > FLT_EPSILON and 
       {
         // nearest muons of opposite charge: {i, j}
         // let k = 3-i-j be the index of the third muon
@@ -281,7 +281,7 @@ ints nearest(floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge
   return out;
 }
 
-ints nearestSameFlavor(floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge1, ints charge2, ints pdgId)
+ints nearestSameFlavor(floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge1, ints charge2, ints pdgId1, ints pdgId2)
 {
   ints out = {-1, -1};
   float mindr = FLT_MAX;
@@ -290,7 +290,7 @@ ints nearestSameFlavor(floats &eta1, floats &eta2, floats &phi1, floats &phi2, i
     for (unsigned int j = i+1; j < 3; j++)
     {
       auto dr = ROOT::VecOps::DeltaR(eta1[i], eta2[j], phi1[i], phi2[j]);
-      if (charge1[i] != charge2[j] and pdgId[i] == pdgId[j] and dr < mindr)
+      if (dr < mindr and charge1[i] != charge2[j] and abs(pdgId1[i]) == abs(pdgId2[j]))
       {
         out = {i, j};
         mindr = dr;

@@ -53,19 +53,37 @@ def ls(directory):
 
 if __name__ == "__main__":
     files = {
+        "sig": ["TT2L2Nu_2_Muons_signal.root"],
+               #"TT2L2Nu_1_Muon_1_Electron_signal.root",
+               #"TT2L2Nu_2_Electrons_signal.root"],
+        "bkg": {
+            "WZ":    ["TT2L2Nu_2_Muons_WZ.root"],
+                     #"TT2L2Nu_1_Muon_1_Electron_WZ.root",
+                     #"TT2L2Nu_2_Electrons_WZ.root"],
+            "ttW":   ["TT2L2Nu_2_Muons_ttW.root"],
+                     #"TT2L2Nu_1_Muon_1_Electron_ttW.root",
+                     #"TT2L2Nu_2_Electrons_ttW.root"],
+            "WWW":   ["TT2L2Nu_2_Muons_WWW.root"],
+                     #"TT2L2Nu_1_Muon_Electron_WWW.root",
+                     #"TT2L2Nu_2_Electrons_WWW.root"],
+            "WH":    ["TT2L2Nu_2_Muons_HWminusJets.root",
+                      "TT2L2Nu_2_Muons_HWplusJets.root"],
+                     #"TT2L2Nu_1_Muon_Electron_HWminusJets.root",
+                     #"TT2L2Nu_1_Muon_Electron_HWplusJets.root",
+                     #"TT2L2Nu_2_Electrons_HWminusJets.root",
+                     #"TT2L2Nu_2_Electrons_HWplusJets.root"],
+            "ttbar": ["TT2L2Nu_2_Muons_ttbar.root"],
+                     #"TT2L2Nu_1_Muon_1_Electron_1_ttbar.root",
+                     #"TT2L2Nu_1_Muon_1_Electron_2_ttbar.root",
+                     #"TT2L2Nu_1_Muon_1_Electron_3_ttbar.root",
+                     #"TT2L2Nu_2_Electrons_ttbar.root"],
+        }
+    }
+    files = {
         "sig": ["TT2L2Nu_2_Muons_signal.root",
                 "TT2L2Nu_1_Muon_1_Electron_signal.root",
                 "TT2L2Nu_2_Electrons_signal.root"],
         "bkg": {
-           #"ST_tW": ["TT2L2Nu_2_Muons_ST_tW_top.root",
-           #          "TT2L2Nu_2_Muons_ST_tW_antitop.root",
-           #          "TT2L2Nu_1_Muon_Electron_ST_tW_top.root",
-           #          "TT2L2Nu_1_Muon_Electron_ST_tW_antitop.root",
-           #          "TT2L2Nu_2_Electrons_ST_tW_top.root",
-           #          "TT2L2Nu_2_Electrons_ST_tW_antitop.root"],
-           #"WW":    ["TT2L2Nu_2_Muons_WW.root",
-           #          "TT2L2Nu_1_Muon_Electron_WW.root",
-           #          "TT2L2Nu_2_Electrons_WW.root"],
             "WZ":    ["TT2L2Nu_2_Muons_WZ.root",
                       "TT2L2Nu_1_Muon_1_Electron_WZ.root",
                       "TT2L2Nu_2_Electrons_WZ.root"],
@@ -75,20 +93,17 @@ if __name__ == "__main__":
             "WWW":   ["TT2L2Nu_2_Muons_WWW.root",
                       "TT2L2Nu_1_Muon_Electron_WWW.root",
                       "TT2L2Nu_2_Electrons_WWW.root"],
-           #"ZH":    ["TT2L2Nu_2_Muons_HZJets.root",
-           #          "TT2L2Nu_1_Muon_Electron_HZJets.root",
-           #          "TT2L2Nu_2_Electrons_HZJets.root"],
             "WH":    ["TT2L2Nu_2_Muons_HWminusJets.root",
                       "TT2L2Nu_2_Muons_HWplusJets.root",
                       "TT2L2Nu_1_Muon_Electron_HWminusJets.root",
                       "TT2L2Nu_1_Muon_Electron_HWplusJets.root",
                       "TT2L2Nu_2_Electrons_HWminusJets.root",
-                      "TT2L2Nu_2_Electrons_HWplusJets.root"]
-           #"ttbar": ["TT2L2Nu_2_Muons_ttbar.root",
-           #          "TT2L2Nu_1_Muon_1_Electron_1_ttbar.root",
-           #          "TT2L2Nu_1_Muon_1_Electron_2_ttbar.root",
-           #          "TT2L2Nu_1_Muon_1_Electron_3_ttbar.root",
-           #          "TT2L2Nu_2_Electrons_ttbar.root"],
+                      "TT2L2Nu_2_Electrons_HWplusJets.root"],
+            "ttbar": ["TT2L2Nu_2_Muons_ttbar.root",
+                      "TT2L2Nu_1_Muon_1_Electron_1_ttbar.root",
+                      "TT2L2Nu_1_Muon_1_Electron_2_ttbar.root",
+                      "TT2L2Nu_1_Muon_1_Electron_3_ttbar.root",
+                      "TT2L2Nu_2_Electrons_ttbar.root"],
         }
     }
     storage   = "rootfilesstorage"
@@ -146,7 +161,8 @@ if __name__ == "__main__":
         print()
         filenamesStr = fetch(usage)
         filenamesArr = filenamesStr.split("\n")
-        result = "_and_".join(map(lambda fname: fname[8:].replace(".root", ""), filenamesArr)) + f"_{step}.root"
+       #result = "_and_".join(map(lambda fname: fname[8:].replace(".root", ""), filenamesArr)) + f"_{step}.root"
+        result = f"signal_{step}.root"
         print("Processing:")
         print(colored(filenamesStr, "green"))
         print("Saving result as:")
@@ -157,7 +173,7 @@ if __name__ == "__main__":
         run(f"mv analysed/analysed.root {outputDir}{result}")
         [run(f"mv {usage}/{filename} {storage}/") for filename in filenamesArr]
         run(f"ls -lh {usage}")
-        #run(f"ls -lh {storage}")
+       #run(f"ls -lh {storage}")
 
         for (bkg, filenamesArrStorage) in files["bkg"].items():
             print()
@@ -165,8 +181,8 @@ if __name__ == "__main__":
             print()
             print()
             filenamesStrStorage = "\n".join(filenamesArrStorage)
-            result = "_and_".join(map(lambda fname: fname[8:].replace(".root", ""),
-                                      filenamesArrStorage)) + f"_{step}.root"
+           #result = "_and_".join(map(lambda fname: fname[8:].replace(".root", ""), filenamesArrStorage)) + f"_{step}.root"
+            result = f"{bkg}_{step}.root"
             print("Processing:")
             print(colored(filenamesStrStorage, "green"))
             print("Saving result as:")
