@@ -53,33 +53,6 @@ def ls(directory):
 
 if __name__ == "__main__":
     files = {
-        "sig": ["TT2L2Nu_2_Muons_signal.root"],
-               #"TT2L2Nu_1_Muon_1_Electron_signal.root",
-               #"TT2L2Nu_2_Electrons_signal.root"],
-        "bkg": {
-            "WZ":    ["TT2L2Nu_2_Muons_WZ.root"],
-                     #"TT2L2Nu_1_Muon_1_Electron_WZ.root",
-                     #"TT2L2Nu_2_Electrons_WZ.root"],
-            "ttW":   ["TT2L2Nu_2_Muons_ttW.root"],
-                     #"TT2L2Nu_1_Muon_1_Electron_ttW.root",
-                     #"TT2L2Nu_2_Electrons_ttW.root"],
-            "WWW":   ["TT2L2Nu_2_Muons_WWW.root"],
-                     #"TT2L2Nu_1_Muon_Electron_WWW.root",
-                     #"TT2L2Nu_2_Electrons_WWW.root"],
-            "WH":    ["TT2L2Nu_2_Muons_HWminusJets.root",
-                      "TT2L2Nu_2_Muons_HWplusJets.root"],
-                     #"TT2L2Nu_1_Muon_Electron_HWminusJets.root",
-                     #"TT2L2Nu_1_Muon_Electron_HWplusJets.root",
-                     #"TT2L2Nu_2_Electrons_HWminusJets.root",
-                     #"TT2L2Nu_2_Electrons_HWplusJets.root"],
-            "ttbar": ["TT2L2Nu_2_Muons_ttbar.root"],
-                     #"TT2L2Nu_1_Muon_1_Electron_1_ttbar.root",
-                     #"TT2L2Nu_1_Muon_1_Electron_2_ttbar.root",
-                     #"TT2L2Nu_1_Muon_1_Electron_3_ttbar.root",
-                     #"TT2L2Nu_2_Electrons_ttbar.root"],
-        }
-    }
-    files = {
         "sig": ["TT2L2Nu_2_Muons_signal.root",
                 "TT2L2Nu_1_Muon_1_Electron_signal.root",
                 "TT2L2Nu_2_Electrons_signal.root"],
@@ -104,6 +77,33 @@ if __name__ == "__main__":
                       "TT2L2Nu_1_Muon_1_Electron_2_ttbar.root",
                       "TT2L2Nu_1_Muon_1_Electron_3_ttbar.root",
                       "TT2L2Nu_2_Electrons_ttbar.root"],
+        }
+    }
+    files = {
+        "sig": ["TT2L2Nu_2_Muons_signal.root"],
+               #"TT2L2Nu_1_Muon_1_Electron_signal.root",
+               #"TT2L2Nu_2_Electrons_signal.root"],
+        "bkg": {
+            "WZ":    ["TT2L2Nu_2_Muons_WZ.root"],
+                     #"TT2L2Nu_1_Muon_1_Electron_WZ.root",
+                     #"TT2L2Nu_2_Electrons_WZ.root"],
+            "ttW":   ["TT2L2Nu_2_Muons_ttW.root"],
+                     #"TT2L2Nu_1_Muon_1_Electron_ttW.root",
+                     #"TT2L2Nu_2_Electrons_ttW.root"],
+            "WWW":   ["TT2L2Nu_2_Muons_WWW.root"],
+                     #"TT2L2Nu_1_Muon_Electron_WWW.root",
+                     #"TT2L2Nu_2_Electrons_WWW.root"],
+            "WH":    ["TT2L2Nu_2_Muons_HWminusJets.root",
+                      "TT2L2Nu_2_Muons_HWplusJets.root"],
+                     #"TT2L2Nu_1_Muon_Electron_HWminusJets.root",
+                     #"TT2L2Nu_1_Muon_Electron_HWplusJets.root",
+                     #"TT2L2Nu_2_Electrons_HWminusJets.root",
+                     #"TT2L2Nu_2_Electrons_HWplusJets.root"],
+            "ttbar": ["TT2L2Nu_2_Muons_ttbar.root"],
+                     #"TT2L2Nu_1_Muon_1_Electron_1_ttbar.root",
+                     #"TT2L2Nu_1_Muon_1_Electron_2_ttbar.root",
+                     #"TT2L2Nu_1_Muon_1_Electron_3_ttbar.root",
+                     #"TT2L2Nu_2_Electrons_ttbar.root"],
         }
     }
     storage   = "rootfilesstorage"
