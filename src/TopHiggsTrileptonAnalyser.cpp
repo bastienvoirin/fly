@@ -82,7 +82,7 @@ void TopHiggsTrileptonAnalyser::defineCuts()
 
     // Basic cuts
     // 3-lepton final state: T' => t, H => Wb, WW => (lν, lν), (lν, b-tagged jet)
-    /*(jul16c_btag_deepjet_tight)*/addCuts("sel_lepton_number == 3", "00");
+    //(jul18b_btag_deepjet_medium_and_leptons_id_fixed)//addCuts("sel_lepton_number == 3", "00");
   //addCuts("(sel_lepton_number == 3) && (sel_mu_number == 3)", "00");
 
     addCuts("sel_bjet_number >= 1", "000"); // At least 1 b-tagged jet: t => (W, b) => (lν, b-jet); relevant for WZ background, not for ttbar
@@ -119,7 +119,7 @@ void TopHiggsTrileptonAnalyser::selectElectrons()
 
     _rlm = _rlm.Define("goodElecID",              ElectronID(4)); // 2: loose, 3: medium, 4: tight
     _rlm = _rlm.Define("goodElecBenj",            "goodElecID && Electron_cutBased_HEEP == 1 && Electron_pt > 25 && abs(Electron_eta) < 2.5 && Electron_sip3d < 3 && Electron_miniPFRelIso_all < 0.05")
-/*_rlm = _rlm*/.Define("goodElectrons",           "goodElecBenj && Electron_pt > 20 && abs(Electron_eta) < 2.4 && abs(Electron_dxy) < 0.05 && abs(Electron_dz) < 0.1 && Electron_sip3d < 3 && Electron_miniPFRelIso_all < 0.4 && Electron_sieie < 0.03 && Electron_hoe < 0.1 && Electron_eInvMinusPInv > -0.04 && Electron_lostHits == 0 && Electron_convVeto == 1 && Electron_mvaTTH > 0.8")
+/*_rlm = _rlm*/.Define("goodElectrons",           "goodElecBenj && Electron_pt > 20 && abs(Electron_eta) < 2.4 && abs(Electron_dxy) < 0.05 && abs(Electron_dz) < 0.1 && Electron_sip3d < 8 && Electron_miniPFRelIso_all < 0.4 && Electron_sieie < 0.03 && Electron_hoe < 0.1 && Electron_eInvMinusPInv > -0.04 && Electron_lostHits == 0 && Electron_convVeto == 1 && Electron_mvaFall17V2noIso_WPL == 1")
                .Define("sel_el_pt",               "Electron_pt[goodElectrons]")
                .Define("sel_el_leading_pt",       "sel_el_pt[0]")
                .Define("sel_el_subleading_pt",    "sel_el_pt[1]")
@@ -155,8 +155,8 @@ void TopHiggsTrileptonAnalyser::selectMuons()
     // Define good muons
     _rlm = _rlm.Define("goodMuonID",              MuonID(4)); // 2: loose, 3: medium, 4: tight
     _rlm = _rlm.Define("goodMuonsLoose",          "goodMuonID && Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_looseId && Muon_miniPFRelIso_all < 0.40")
-               .Define("goodMuonsBenj",           "goodMuonsLoose && Muon_pt > 20 && abs(Muon_eta) < 2.4 && Muon_tightId && Muon_miniPFRelIso_all < 0.05 && Muon_sip3d < 3")
-/*_rlm = _rlm*/.Define("goodMuons",               "goodMuonsBenj && goodMuonID && Muon_pt > 20 && abs(Muon_eta) < 2.4 && abs(Muon_dxy) < 0.05 && abs(Muon_dz) < 0.1 && Muon_sip3d < 3 && Muon_miniPFRelIso_all < 0.05 && Muon_mvaTTH > 0.85")
+               .Define("goodMuons",               "goodMuonsLoose && Muon_pt > 20 && abs(Muon_eta) < 2.4 && Muon_tightId && Muon_miniPFRelIso_all < 0.05 && Muon_sip3d < 3")
+             //.Define("goodMuons",               "goodMuonsBenj && goodMuonID && Muon_pt > 20 && abs(Muon_eta) < 2.4 && abs(Muon_dxy) < 0.05 && abs(Muon_dz) < 0.1 && Muon_sip3d < 3 && Muon_miniPFRelIso_all < 0.05 && Muon_mvaTTH > 0.85")
                .Define("sel_mu_pt",               "Muon_pt[goodMuons]")
                .Define("sel_mu_leading_pt",       "sel_mu_pt[0]")
                .Define("sel_mu_subleading_pt",    "sel_mu_pt[1]")
@@ -465,7 +465,7 @@ void TopHiggsTrileptonAnalyser::selectJets()
                .Define("sel_jet_mass",            "Jet_mass[goodJets]")
                .Define("sel_jet_number",           "int(sel_jet_pt.size())");
 
-    _rlm = _rlm.Define("goodJets_btag",            "goodJets && abs(Jet_eta) < 2.5 && Jet_btagDeepFlavB > 0.71") //Jet_btagDeepB > 0.1208") DeepCSV loose = 0.1208, DeepJet loose = 0.0490, DeepJet medium = 0.2783 DeepJet tight WP = 0.7100
+    _rlm = _rlm.Define("goodJets_btag",            "goodJets && abs(Jet_eta) < 2.5 && Jet_btagDeepFlavB > 0.2783") // DeepJet loose = 0.0490, DeepJet medium = 0.2783 DeepJet tight WP = 0.7100
                .Define("sel_bjet_pt",              "Jet_pt[goodJets_btag]")
                .Define("sel_bjet_sum_all_jets_pt", "Sum(sel_bjet_pt)")
                .Define("sel_bjet_eta",             "Jet_eta[goodJets_btag]")
