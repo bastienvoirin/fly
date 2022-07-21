@@ -252,20 +252,20 @@ floats dimuon (FourVectorVec &muons, ints Muon_charge)
       return out;
 }
 
-ints nearest(floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge1, ints charge2)
+ints nearest(floats &eta, floats &phi, ints &charge)
 {
   ints out = {-1, -1, -1, -1};
   float mindr = FLT_MAX;
-  for (unsigned int i = 0; i < 3; i++)
+  for (unsigned int i = 0; i < charge.size(); i++)
   {
-    for (unsigned int j = i+1; j < 3; j++)
+    for (unsigned int j = i+1; j < charge.size(); j++)
     {
-      auto dr = ROOT::VecOps::DeltaR(eta1[i], eta2[j], phi1[i], phi2[j]);
-      if (dr < mindr and charge1[i] != charge2[j])//dr > FLT_EPSILON and 
+      auto dr = ROOT::VecOps::DeltaR(eta[i], eta[j], phi[i], phi[j]);
+      if (dr < mindr and charge[i] != charge[j])//dr > FLT_EPSILON and 
       {
         // nearest muons of opposite charge: {i, j}
         // let k = 3-i-j be the index of the third muon
-        if (charge1[i] != charge2[3-i-j])
+        if (charge[i] != charge[3-i-j])
         {
             out = {i, j, i, 3-i-j};
         }
@@ -281,16 +281,16 @@ ints nearest(floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge
   return out;
 }
 
-ints nearestSameFlavor(floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge1, ints charge2, ints pdgId1, ints pdgId2)
+ints nearestSameFlavor(floats &eta, floats &phi, ints &charge, ints &pdgId)
 {
   ints out = {-1, -1};
   float mindr = FLT_MAX;
-  for (unsigned int i = 0; i < 3; i++)
+  for (unsigned int i = 0; i < charge.size(); i++)
   {
-    for (unsigned int j = i+1; j < 3; j++)
+    for (unsigned int j = i+1; j < charge.size(); j++)
     {
-      auto dr = ROOT::VecOps::DeltaR(eta1[i], eta2[j], phi1[i], phi2[j]);
-      if (dr < mindr and charge1[i] != charge2[j] and abs(pdgId1[i]) == abs(pdgId2[j]))
+      auto dr = ROOT::VecOps::DeltaR(eta[i], eta[j], phi[i], phi[j]);
+      if (dr < mindr and charge[i] != charge[j] and abs(pdgId[i]) == abs(pdgId[j]))
       {
         out = {i, j};
         mindr = dr;
@@ -299,4 +299,3 @@ ints nearestSameFlavor(floats &eta1, floats &eta2, floats &phi1, floats &phi2, i
   }
   return out;
 }
-

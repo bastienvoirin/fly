@@ -74,7 +74,8 @@ floats PrintVector(floats myvector);
 floats w_reconstruction (FourVectorVec &jets);
 floats compute_DR (FourVectorVec &muons, ints goodMuons_charge);
 floats dimuon (FourVectorVec &muons, ints Muon_charge);
-ints nearest (floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge1, ints charge2);
-ints nearestSameFlavor (floats &eta1, floats &eta2, floats &phi1, floats &phi2, ints charge1, ints charge2, ints pdgId1, ints pdgId2);
+ints nearest (floats &eta, floats &phi, ints &charge);
+ints nearestSameFlavor (floats &eta, floats &phi, ints &charge, ints &pdgId);
+ints overlap();
 
 #endif /* UTILITY_H_ */
