@@ -81,11 +81,11 @@ void TopHiggsTrileptonAnalyser::defineCuts()
     addCuts("IsSignal == 0 || (IsSignal == 1 && Sum(IsFromW) >= 3)", "0");
 
     // Basic selection: 3 leptons, at least 2 oppositely charged leptons, at least 2 oppositely charged same flavor leptons, remove reconstruction issue
-    //(jul28a_mumumu_cmsnote)//addCuts("(sel_lepton_number == 3) && (sel_mu_number == 3) && (abs(sel_lepton_charge_sum) == 1) && (ll_flav_orderby_dr_delta_index > 0)", "00");
-    //(jul28a_mumuel_cmsnote)//addCuts("(sel_lepton_number == 3) && (sel_mu_number == 2) && (sel_el_number == 1) && (abs(sel_lepton_charge_sum) == 1) && (ll_flav_orderby_dr_delta_index > 0)", "00");
-    //(jul28a_muelel_cmsnote)//addCuts("(sel_lepton_number == 3) && (sel_el_number == 2) && (sel_mu_number == 1) && (abs(sel_lepton_charge_sum) == 1) && (ll_flav_orderby_dr_delta_index > 0)", "00");       
-    //(jul28a_elelel_cmsnote)//addCuts("(sel_lepton_number == 3) && (sel_el_number == 3) && (abs(sel_lepton_charge_sum) == 1) && (ll_flav_orderby_dr_delta_index > 0)", "00");    
-    //(jul28a_3l_cmsnote)//addCuts("(sel_lepton_number == 3) && (abs(sel_lepton_charge_sum) == 1) && (ll_flav_orderby_dr_delta_index > 0)", "00");  
+    //(jul28a_mumumu_cmsnote)addCuts("(sel_lepton_number == 3) && (sel_mu_number == 3) && (abs(sel_lepton_charge_sum) == 1) && (ll_flav_orderby_dr_delta_index > 0)", "00");
+    //(jul28a_mumuel_cmsnote)addCuts("(sel_lepton_number == 3) && (sel_mu_number == 2) && (sel_el_number == 1) && (abs(sel_lepton_charge_sum) == 1) && (ll_flav_orderby_dr_delta_index > 0)", "00");
+    //(jul28a_muelel_cmsnote)addCuts("(sel_lepton_number == 3) && (sel_el_number == 2) && (sel_mu_number == 1) && (abs(sel_lepton_charge_sum) == 1) && (ll_flav_orderby_dr_delta_index > 0)", "00");       
+    //(jul28a_elelel_cmsnote)addCuts("(sel_lepton_number == 3) && (sel_el_number == 3) && (abs(sel_lepton_charge_sum) == 1) && (ll_flav_orderby_dr_delta_index > 0)", "00");    
+    /*()*/addCuts("(sel_lepton_number == 3) && (abs(sel_lepton_charge_sum) == 1) && (ll_flav_orderby_dr_delta_index > 0)", "00");  
     addCuts("(DeltaR_01 > 0.05) && (DeltaR_02 > 0.05) && (DeltaR_12 > 0.05)", "000");
 
     addCuts("sel_lepton_sum_3_lepton_pt >= 160.0", "0000");
@@ -116,11 +116,11 @@ void TopHiggsTrileptonAnalyser::selectElectrons()
     cout << "Selecting good electrons" << endl;
     printDebugInfo(__LINE__, __FUNCTION__);
 
-//_rlm = _rlm.Define("goodElecID",              ElectronID(4)); // 2: loose, 3: medium, 4: tight
+    _rlm = _rlm.Define("goodElecID",              ElectronID(4)); // 2: loose, 3: medium, 4: tight
   //_rlm = _rlm.Define("goodElecBenj",            "goodElecID && Electron_cutBased_HEEP == 1 && Electron_pt > 25 && abs(Electron_eta) < 2.5 && Electron_sip3d < 3 && Electron_miniPFRelIso_all < 0.05")
-//_rlm = _rlm.Define("goodElectrons",           "goodElecID && Electron_pt > 25 && abs(Electron_eta) < 2.5 && Electron_sip3d < 3 && Electron_miniPFRelIso_all < 0.05")//"goodElecBenj && Electron_pt > 20 && abs(Electron_eta) < 2.4 && abs(Electron_dxy) < 0.05 && abs(Electron_dz) < 0.1 && Electron_sip3d < 8 && Electron_miniPFRelIso_all < 0.4 && Electron_sieie < 0.03 && Electron_hoe < 0.1 && Electron_eInvMinusPInv > -0.04 && Electron_lostHits == 0 && Electron_convVeto == 1 && Electron_mvaFall17V2noIso_WPL == 1")
-    _rlm = _rlm.Define("goodElecID",              ElectronID(4));
-    _rlm = _rlm.Define("goodElectrons",           "goodElecID && Electron_pt > 25 && abs(Electron_eta) < 2.5 && Electron_sip3d < 3 && Electron_miniPFRelIso_all < 0.05 && abs(Electron_dxy) < 0.05 && abs(Electron_dz) < 0.1 && Electron_sip3d < 8 && Electron_miniPFRelIso_all < 0.40 && ((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || (abs(Electron_eta) > 1.479 && Electron_sieie < 0.03)) && Electron_hoe < 0.1 && Electron_eInvMinusPInv > -0.04 && Electron_convVeto == 1 && Electron_lostHits == 0 && Electron_mvaFall17V2Iso_WPL == 1 && Electron_cutBased_HEEP == 1")
+    _rlm = _rlm.Define("goodElectrons",           "goodElecID && Electron_pt > 25 && abs(Electron_eta) < 2.5 && Electron_sip3d < 3 && Electron_miniPFRelIso_all < 0.05")//"goodElecBenj && Electron_pt > 20 && abs(Electron_eta) < 2.4 && abs(Electron_dxy) < 0.05 && abs(Electron_dz) < 0.1 && Electron_sip3d < 8 && Electron_miniPFRelIso_all < 0.4 && Electron_sieie < 0.03 && Electron_hoe < 0.1 && Electron_eInvMinusPInv > -0.04 && Electron_lostHits == 0 && Electron_convVeto == 1 && Electron_mvaFall17V2noIso_WPL == 1")
+//_rlm = _rlm.Define("goodElecID",              ElectronID(4));
+//_rlm = _rlm.Define("goodElectrons",           "goodElecID && Electron_pt > 25 && abs(Electron_eta) < 2.5 && Electron_sip3d < 3 && Electron_miniPFRelIso_all < 0.05 && abs(Electron_dxy) < 0.05 && abs(Electron_dz) < 0.1 && Electron_sip3d < 8 && Electron_miniPFRelIso_all < 0.40 && ((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || (abs(Electron_eta) > 1.479 && Electron_sieie < 0.03)) && Electron_hoe < 0.1 && Electron_eInvMinusPInv > -0.04 && Electron_convVeto == 1 && Electron_lostHits == 0 && Electron_mvaFall17V2Iso_WPL == 1 && Electron_cutBased_HEEP == 1")
                .Define("sel_el_pt",               "Electron_pt[goodElectrons]")
                .Define("sel_el_leading_pt",       "sel_el_pt[0]")
                .Define("sel_el_subleading_pt",    "sel_el_pt[1]")
